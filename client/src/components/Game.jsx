@@ -11,7 +11,21 @@ class Game extends React.Component {
             isWhite: true,
             moves: [] 
         }
+        this.worker = new Worker('stockfish.js');
     }
+
+    componentDidMount(){
+        this.worker.onmessage = function(oEvent) {
+            console.log('Worker said : ' + oEvent.data);
+        };
+        this.worker.postMessage('ucinewgame');
+        this.worker.postMessage('isready');
+    }
+
+    componentWillUnmount(){
+        this.worker.terminate();
+    }
+
     render(){
         const root = {
             maxHeight: '100vh',
