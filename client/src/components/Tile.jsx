@@ -31,15 +31,18 @@ class Tile extends React.Component{
             height: '100%',
         };
         const tableCell = {
-            display: 'table-cell',
+            display: 'flex',
             verticalAlign: 'middle',
         };
+        const image = {
+            width: '100%',
+        }
         return (
             <div style={square}>
                 <div style={content}>
                     <div style={table}>
                         <div style={tableCell}>
-                            <img src={imageRouter[symbol]}/>
+                            <img style={image} src={imageRouter[symbol]}/>
                         </div>
                     </div>
                 </div>
