@@ -8,8 +8,11 @@ class Game extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            isWhite: true,
-            moves: [] 
+            isPlayerWhite: true,
+            isBoardReversed: false,
+            boards: ['rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'],//list of board FEN strings
+            boardIndex: 0,//which board in boards[] to view when looking at prev moves
+            moves: [],//algebraic move strings
         }
         this.worker = new Worker('stockfish.js');
     }
@@ -18,6 +21,7 @@ class Game extends React.Component {
         this.worker.onmessage = function(oEvent) {
             console.log('Worker said : ' + oEvent.data);
         };
+        //this.worker.postMessage('uci');
         this.worker.postMessage('ucinewgame');
         this.worker.postMessage('isready');
     }
@@ -32,10 +36,20 @@ class Game extends React.Component {
             display: 'flex',
             flexDirection: 'column',
         };
+
+        const { 
+            boards, 
+            boardIndex, 
+            isBoardReversed,
+        } = this.state;
+
         return(
             <div style={root}>
                 <Header />
-                <Board />
+                <Board
+                    board={boards[boardIndex]}
+                    isReversed={isBoardReversed}
+                />
                 <Footer />
             </div>
         );

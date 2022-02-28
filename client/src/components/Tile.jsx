@@ -1,14 +1,22 @@
 import React from 'react';
 
+import imageRouter from '../utilities/imageRouter.js';
+
 class Tile extends React.Component{
     render(){
+        const { 
+            position, 
+            backgroundColor, 
+            symbol,
+        } = this.props;
+        console.log(position);
         const square = {
             float: 'left',
             position: 'relative',
             width: '12%',
             paddingBottom: '12%', /* = width for a 1:1 aspect ratio */
             margin: '0.25%',
-            backgroundColor: '#1E1E1E',
+            backgroundColor: backgroundColor,
             overflow: 'hidden',
         };
         const content = {
@@ -26,12 +34,12 @@ class Tile extends React.Component{
             display: 'table-cell',
             verticalAlign: 'middle',
         };
-        return(
+        return (
             <div style={square}>
                 <div style={content}>
                     <div style={table}>
                         <div style={tableCell}>
-                            PIECE
+                            <img src={imageRouter[symbol]}/>
                         </div>
                     </div>
                 </div>

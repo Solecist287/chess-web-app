@@ -1,29 +1,52 @@
-import React from 'react';
+import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
-class Board extends React.Component{
+
+import { unfoldFen } from '../utilities/utilities.jsx';
+
+let rankList = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
+let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
+
+class Board extends Component{
     constructor(props){
         super(props);
-        this.state = {
-            tiles: []
-        }
-    }
-    renderTiles(rowNum, colNum){
-        const tiles = [];
-        for (let i = 0; i < rowNum; i++){
-            for (let j = 0; j < colNum; j++){
-                tiles.push(<Tile row={i} col={j} />);
-            }
-        }
-        return tiles;
     }
     render(){
         const root = {
             maxWidth: '80vh',
             maxHeight: '80vh'
         };
+        const darkSquare = '#D18B47';
+        const lightSquare = '#FFCE9E';
+        
+        const { 
+            board, 
+            isReversed,
+        } = this.props;
+        
+        console.log(board);
+        let ranks = isReversed ? rankList.reverse() : rankList;
+        let files = isReversed ? fileList.reverse() : fileList;
+        let boardArr = unfoldFen(board, isReversed);
+        console.log(boardArr);
         return(
             <div style={root}>
-                {this.renderTiles(8,8)}
+                {ranks.map((rank, rindex) => {
+                    return(
+                        <Fragment>
+                            {files.map((file, findex) => {
+                                let backgroundColor = (rindex % 2 == findex % 2) ? lightSquare : darkSquare;
+                                let symbol = boardArr[rindex * 8 + findex];
+                                return(
+                                    <Tile
+                                        position={`${file}${rank}`}
+                                        backgroundColor={backgroundColor}
+                                        symbol={symbol}
+                                    />
+                                );
+                            })}    
+                        </Fragment>
+                    );
+                })}
             </div>
         );
     }
