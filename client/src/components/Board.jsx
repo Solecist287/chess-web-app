@@ -30,23 +30,21 @@ class Board extends Component{
         //console.log(boardArr);
         return(
             <div style={root}>
-                {ranks.map((rank, rindex) => {
-                    return(
-                        <Fragment>
-                            {files.map((file, findex) => {
-                                let backgroundColor = (rindex % 2 == findex % 2) ? lightSquare : darkSquare;
-                                let symbol = boardArr[rindex * 8 + findex];
-                                return(
-                                    <Tile
-                                        position={`${file}${rank}`}
-                                        backgroundColor={backgroundColor}
-                                        symbol={symbol}
-                                    />
-                                );
-                            })}    
-                        </Fragment>
-                    );
-                })}
+                {ranks.map((rank, rindex) => (
+                    files.map((file, findex) => {
+                        let backgroundColor = (rindex % 2 == findex % 2) ? lightSquare : darkSquare;
+                        let symbol = boardArr[rindex * 8 + findex];
+                        return(
+                            <Fragment key={`${rank}-${file}`}>
+                                <Tile
+                                    position={`${file}${rank}`}
+                                    backgroundColor={backgroundColor}
+                                    symbol={symbol}
+                                />
+                            </Fragment>
+                        );
+                    })
+                ))}
             </div>
         );
     }
