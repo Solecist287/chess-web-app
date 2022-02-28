@@ -23,11 +23,11 @@ class Board extends Component{
             isReversed,
         } = this.props;
         
-        console.log(board);
+        //console.log(board);
         let ranks = isReversed ? rankList.reverse() : rankList;
         let files = isReversed ? fileList.reverse() : fileList;
         let boardArr = unfoldFen(board, isReversed);
-        console.log(boardArr);
+        //console.log(boardArr);
         return(
             <div style={root}>
                 {ranks.map((rank, rindex) => {

@@ -20,9 +20,19 @@ const fenCharMap = {
     '7': 'xxxxxxx',
     '8': 'xxxxxxxx'    
 }
+function reverseStr(string){
+    if (!string || !string.length){
+        return null;
+    }
+    let output = '';
+    for (let i = string.length - 1; i >= 0; i--){
+        output += string.charAt(i);
+    }
+    return output;
+}
 
 export function unfoldFen(fen, isReversed){
-    let fenOriented = isReversed ? fetch.reverse() : fen;
+    let fenOriented = isReversed ? reverseStr(fen) : fen;
     return fenOriented
             .split('/').map(line => {
                 let unfoldedLine = '';

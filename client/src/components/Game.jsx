@@ -50,6 +50,7 @@ class Game extends React.Component {
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}
                 />
+                {/*<button style={{'height': 12}} onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}/>*/}
                 <Footer />
             </div>
         );

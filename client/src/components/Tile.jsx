@@ -9,7 +9,7 @@ class Tile extends React.Component{
             backgroundColor, 
             symbol,
         } = this.props;
-        console.log(position);
+        
         const square = {
             float: 'left',
             position: 'relative',
