@@ -15,6 +15,7 @@ class Game extends React.Component {
             moves: [],//algebraic move strings
         }
         this.worker = new Worker('stockfish.js');
+        
     }
 
     componentDidMount(){
