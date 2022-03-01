@@ -1,4 +1,13 @@
-const fenCharMap = {
+export const NUM_ROWS = 8;
+export const NUM_COLS = 8;
+
+export function positionToCoords(san){
+    let row = Math.abs(Number(san[1]) - NUM_ROWS);
+    let col = Math.abs(san.charCodeAt(0) - 97);
+    return [row, col];
+}
+
+export const fenCharMap = {
     'b': 'b',
     'B': 'B',
     'k': 'k',
@@ -20,7 +29,8 @@ const fenCharMap = {
     '7': 'xxxxxxx',
     '8': 'xxxxxxxx'    
 }
-function reverseStr(string){
+
+export function reverseStr(string){
     if (!string || !string.length){
         return null;
     }

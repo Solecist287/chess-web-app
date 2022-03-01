@@ -1,7 +1,7 @@
 import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
 
-import { unfoldFen } from '../utilities/utilities.js';
+import { reverseStr } from '../utilities/utilities.js';
 
 let rankList = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
 let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
@@ -23,17 +23,20 @@ class Board extends Component{
             isReversed,
         } = this.props;
         
-        //console.log(board);
+        console.log(board);
         let ranks = isReversed ? rankList.reverse() : rankList;
         let files = isReversed ? fileList.reverse() : fileList;
-        let boardArr = unfoldFen(board, isReversed);
-        //console.log(boardArr);
+        let boardOriented = '';
+        if (board && board.length){
+            boardOriented = isReversed ? reverseStr(board) : board;
+        }
+        
         return(
             <div style={root}>
                 {ranks.map((rank, rindex) => (
                     files.map((file, findex) => {
                         let backgroundColor = (rindex % 2 == findex % 2) ? lightSquare : darkSquare;
-                        let symbol = boardArr[rindex * 8 + findex];
+                        let symbol = boardOriented.charAt(rindex * 8 + findex);
                         return(
                             <Fragment key={`${rank}-${file}`}>
                                 <Tile
