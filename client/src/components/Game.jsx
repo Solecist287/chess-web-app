@@ -12,6 +12,7 @@ class Game extends React.Component {
         this.state = {
             isPlayerWhite: true,
             isBoardReversed: false,
+            highlightedMap: {},//range 0-63
             boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
             moves: [],//algebraic move strings
@@ -48,6 +49,7 @@ class Game extends React.Component {
         };
 
         const { 
+            highlightedMap,
             boards, 
             boardIndex, 
             isBoardReversed,
@@ -57,6 +59,12 @@ class Game extends React.Component {
             <div style={root}>
                 <Header />
                 <Board
+                    highlightedMap={highlightedMap}
+                    onSelection={(val) => { 
+                        let newHighlightedMap = {};
+                        newHighlightedMap[`${val}`] = val;
+                        this.setState({ highlightedMap: newHighlightedMap });
+                    }}
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}
                 />

@@ -8,7 +8,7 @@ class Tile extends React.Component{
             position, 
             backgroundColor, 
             symbol,
-            setSelected,
+            onSelection,
         } = this.props;
 
         const square = {
@@ -41,7 +41,7 @@ class Tile extends React.Component{
         return (
             <div 
                 style={square}
-                onClick={setSelected}
+                onClick={onSelection}
             >
                 <div style={content}>
                     <div style={table}>

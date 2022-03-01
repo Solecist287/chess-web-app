@@ -10,7 +10,6 @@ class Board extends Component{
     constructor(props){
         super(props);
         this.state = {
-            selected: null,
         }
     }
 
@@ -21,11 +20,13 @@ class Board extends Component{
         };
         const darkSquare = '#D18B47';
         const lightSquare = '#FFCE9E';
-        
-        const { 
+        const highlighted = '#72FCF1';
+
+        const {
             board, 
             isReversed,
-            highlighted = [],
+            highlightedMap,
+            onSelection,
         } = this.props;
         
         let ranks = isReversed ? rankList.reverse() : rankList;
@@ -37,8 +38,6 @@ class Board extends Component{
             boardOriented = isReversed ? boardArr.reverse(): boardArr;
         }
         
-        console.log(this.state.selectedIndex);
-
         return(
             <div style={root}>
                 {boardOriented.map((symbol, index) => {
@@ -47,14 +46,14 @@ class Board extends Component{
                     let col = index%NUM_COLS;
                     let file = files[col];
                     let isLightSquare = Boolean(row % 2 == col % 2);
-                    let backgroundColor = isLightSquare ? lightSquare : darkSquare;
+                    let backgroundColor = index in highlightedMap ? highlighted : isLightSquare ? lightSquare : darkSquare;
                     return (
                         <Fragment key={`${rank}-${file}`}>
                             <Tile
                                 position={`${file}${rank}`}
                                 backgroundColor={backgroundColor}
                                 symbol={symbol}
-                                setSelected={() => { this.setState({ selectedIndex: index })}}
+                                onSelection={() => onSelection(index)}
                             />
                         </Fragment>
                     );
