@@ -1,10 +1,17 @@
 export const NUM_ROWS = 8;
 export const NUM_COLS = 8;
 
+//algebraic notation to [row, col]
 export function positionToCoords(san){
     let row = Math.abs(Number(san[1]) - NUM_ROWS);
     let col = Math.abs(san.charCodeAt(0) - 97);
     return [row, col];
+}
+
+//algebraic notation to 1-d index
+export function positionToIndex(san){
+    let coords = positionToCoords(san);
+    return coords[0] * NUM_ROWS + coords[1];
 }
 
 export const fenCharMap = {
@@ -39,17 +46,4 @@ export function reverseStr(string){
         output += string.charAt(i);
     }
     return output;
-}
-
-export function unfoldFen(fen, isReversed){
-    let fenOriented = isReversed ? reverseStr(fen) : fen;
-    return fenOriented
-            .split('/').map(line => {
-                let unfoldedLine = '';
-                for (let i = 0; i < line.length; i++){
-                    unfoldedLine += fenCharMap[line.charAt(i)];
-                }
-                return unfoldedLine;
-            })
-            .join('');
 }

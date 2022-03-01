@@ -17,15 +17,6 @@ var isMoveValid = {
     'q': function(){},
 };
 
-var generatePseudoMovesMap = {
-    'p': function(){},
-    'n': function(){},
-    'r': function(){},
-    'b': function(){},
-    'k': function(){},
-    'q': function(){},
-}
-
 class Chessboard{
     constructor(){
         this.whiteCastle = 'KQ';
@@ -61,22 +52,65 @@ class Chessboard{
         this.board[7][5] = new Piece('b', 'w');
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
-        
-        
-        
-        
     }
-    generatePseudoMoves(san){//accepts a1, b3, etc.
+
+    generateMoves(){}
+    generateMovesFromSan(san){//accepts a1, b3, etc.
         let coords = positionToCoords(san);
         let row = coords[0];
         let col = coords[1];
         let piece = this.board[row][col];
-        if (!piece){
-            return [];
+
+        let moveList = [];//start as pairs (row, col) => (uci) 
+        let output = [];
+        //no moves for enemy pieces or empty squares
+        if (!piece || piece.color !== this.turn){ return output; }
+        switch(piece.type){
+            case 'p':
+                return output;
+            case 'n':
+                return output;;
+            case 'r':
+                return output;;
+            case 'b':
+                return output;;
+            case 'k':
+                return output;;
+            case 'q':
+                return output;;
+            default:
+                return output;;
         }
-        let generatePseudoMoves = generatePseudoMovesMap[piece.type];
-        return generatePseudoMoves(row, col, piece);
     }
+    generateMovesFromCoord(coord){
+        if (coord.length != 2) {return [];}
+    }
+
+    pushUci(move){
+        let startCoords = positionToCoords(move.substring(0,2));
+        let startRow = startCoords[0];
+        let startCol = startCoords[1];
+        let piece = this.board[startRow][startCol];
+        let endCoords = positionToCoords(move.substring(2));
+        let endRow = endCoords[0];
+        let endCol = endCoords[1];
+
+        if (!piece || piece.color !== this.turn){ return; }
+        switch (piece.type){
+            case 'p'://en passant case
+                return;
+            case 'k'://castling case
+                return;
+            default:
+                return;
+        }
+    }
+    isKingInCheck(){
+        //iterate thru and add enemies to list and current king
+        //using this.turn
+        return false;
+    }
+
     toString(){
         let output = '';
         for (let i = 0; i < NUM_ROWS; i++){

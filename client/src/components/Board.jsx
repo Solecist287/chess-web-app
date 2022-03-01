@@ -1,7 +1,7 @@
 import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
 
-import { reverseStr } from '../utilities/utilities.js';
+import { reverseStr, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
 
 let rankList = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
 let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
@@ -9,7 +9,11 @@ let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters
 class Board extends Component{
     constructor(props){
         super(props);
+        this.state = {
+            selected: null,
+        }
     }
+
     render(){
         const root = {
             maxWidth: '80vh',
@@ -21,33 +25,41 @@ class Board extends Component{
         const { 
             board, 
             isReversed,
+            highlighted = [],
         } = this.props;
         
-        console.log(board);
         let ranks = isReversed ? rankList.reverse() : rankList;
         let files = isReversed ? fileList.reverse() : fileList;
-        let boardOriented = '';
+
+        let boardOriented = [];
         if (board && board.length){
-            boardOriented = isReversed ? reverseStr(board) : board;
+            let boardArr = board.split('');
+            boardOriented = isReversed ? boardArr.reverse(): boardArr;
         }
         
+        console.log(this.state.selectedIndex);
+
         return(
             <div style={root}>
-                {ranks.map((rank, rindex) => (
-                    files.map((file, findex) => {
-                        let backgroundColor = (rindex % 2 == findex % 2) ? lightSquare : darkSquare;
-                        let symbol = boardOriented.charAt(rindex * 8 + findex);
-                        return(
-                            <Fragment key={`${rank}-${file}`}>
-                                <Tile
-                                    position={`${file}${rank}`}
-                                    backgroundColor={backgroundColor}
-                                    symbol={symbol}
-                                />
-                            </Fragment>
-                        );
-                    })
-                ))}
+                {boardOriented.map((piece, index) => {
+                    let row = Math.trunc(index/NUM_ROWS);
+                    let rank = ranks[row];
+                    let col = index%NUM_COLS;
+                    let file = files[col];
+                    let isLightSquare = Boolean(row % 2 == col % 2);
+                    let backgroundColor = isLightSquare ? lightSquare : darkSquare;
+                    let symbol = boardOriented[index];
+                    return (
+                        <Fragment key={`${rank}-${file}`}>
+                            <Tile
+                                position={`${file}${rank}`}
+                                backgroundColor={backgroundColor}
+                                symbol={symbol}
+                                setSelected={() => { this.setState({ selectedIndex: index })}}
+                            />
+                        </Fragment>
+                    );
+                })}
             </div>
         );
     }

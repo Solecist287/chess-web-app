@@ -12,7 +12,7 @@ class Game extends React.Component {
         this.state = {
             isPlayerWhite: true,
             isBoardReversed: false,
-            boards: [],//list of board FEN strings
+            boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
             moves: [],//algebraic move strings
         }
@@ -60,7 +60,7 @@ class Game extends React.Component {
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}
                 />
-                {/*<button style={{'height': 12}} onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}/>*/}
+                {<button style={{'height': 12}} onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}/>}
                 <Footer />
             </div>
         );
