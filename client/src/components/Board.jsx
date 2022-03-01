@@ -41,14 +41,13 @@ class Board extends Component{
 
         return(
             <div style={root}>
-                {boardOriented.map((piece, index) => {
+                {boardOriented.map((symbol, index) => {
                     let row = Math.trunc(index/NUM_ROWS);
                     let rank = ranks[row];
                     let col = index%NUM_COLS;
                     let file = files[col];
                     let isLightSquare = Boolean(row % 2 == col % 2);
                     let backgroundColor = isLightSquare ? lightSquare : darkSquare;
-                    let symbol = boardOriented[index];
                     return (
                         <Fragment key={`${rank}-${file}`}>
                             <Tile
