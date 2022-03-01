@@ -36,7 +36,7 @@ export const fenCharMap = {
     '7': 'xxxxxxx',
     '8': 'xxxxxxxx'    
 }
-
+/*
 export function reverseStr(string){
     if (!string || !string.length){
         return null;
@@ -47,3 +47,4 @@ export function reverseStr(string){
     }
     return output;
 }
+*/

@@ -1,7 +1,7 @@
 import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
 
-import { reverseStr, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
+import { NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
 
 let rankList = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
 let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
