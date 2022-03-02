@@ -23,6 +23,7 @@ class Board extends Component{
         const highlighted = '#72FCF1';
 
         const {
+            disabled,
             board, 
             isReversed,
             highlightedMap,
@@ -45,7 +46,7 @@ class Board extends Component{
                     let rank = ranks[row];
                     let col = index%NUM_COLS;
                     let file = files[col];
-                    let isLightSquare = Boolean(row % 2 == col % 2);
+                    let isLightSquare = Boolean(row % 2 === col % 2);
                     let backgroundColor = index in highlightedMap ? highlighted : isLightSquare ? lightSquare : darkSquare;
                     return (
                         <Fragment key={`${rank}-${file}`}>
@@ -53,7 +54,7 @@ class Board extends Component{
                                 position={`${file}${rank}`}
                                 backgroundColor={backgroundColor}
                                 symbol={symbol}
-                                onSelection={() => onSelection(index)}
+                                onSelection={() => !disabled && onSelection(index, symbol)}
                             />
                         </Fragment>
                     );

@@ -1,6 +1,6 @@
 export const NUM_ROWS = 8;
 export const NUM_COLS = 8;
-
+export const EMPTY_SQUARE = ' ';
 //algebraic notation to [row, col]
 export function positionToCoords(san){
     let row = Math.abs(Number(san[1]) - NUM_ROWS);

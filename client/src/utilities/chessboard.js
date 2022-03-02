@@ -1,4 +1,4 @@
-import { fenCharMap, positionToCoords, NUM_ROWS, NUM_COLS, isUpperCase } from './utilities.js';
+import { fenCharMap, positionToCoords, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -121,7 +121,7 @@ class Chessboard{
                     let type = piece.type;
                     output += color === 'w' ? type.toUpperCase() : type;
                 }else{
-                    output += 'x';
+                    output += EMPTY_SQUARE;
                 }
             }
         }

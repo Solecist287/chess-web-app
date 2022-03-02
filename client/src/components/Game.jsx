@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Chessboard from '../utilities/chessboard.js';
+import { EMPTY_SQUARE } from '../utilities/utilities.js';
 
 import Header from './Header.jsx';
 import Board from './Board.jsx';
@@ -10,7 +11,8 @@ class Game extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            isPlayerWhite: true,
+            turn: 'w',
+            player: 'w',
             isBoardReversed: false,
             highlightedMap: {},//range 0-63
             boards: [],//list of board strings i.e. arr[64]
@@ -49,6 +51,8 @@ class Game extends React.Component {
         };
 
         const { 
+            turn,
+            player,
             highlightedMap,
             boards, 
             boardIndex, 
@@ -59,10 +63,15 @@ class Game extends React.Component {
             <div style={root}>
                 <Header />
                 <Board
+                    disabled={player !== turn}
                     highlightedMap={highlightedMap}
-                    onSelection={(val) => { 
+                    onSelection={(val, symbol) => { 
                         let newHighlightedMap = {};
-                        newHighlightedMap[`${val}`] = val;
+                        let isPlayerWhite = player === 'w';
+                        let isSymbolUpperCase = symbol === symbol.toUpperCase();
+                        if (symbol != EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
+                            newHighlightedMap[`${val}`] = val;
+                        }
                         this.setState({ highlightedMap: newHighlightedMap });
                     }}
                     board={boards[boardIndex]}
