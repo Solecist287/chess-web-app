@@ -65,19 +65,23 @@ class Game extends React.Component {
                 <Board
                     disabled={player !== turn}
                     highlightedMap={highlightedMap}
-                    onSelection={(val, symbol) => { 
+                    onSelection={(index, symbol) => { 
                         let newHighlightedMap = {};
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         if (symbol != EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
-                            newHighlightedMap[`${val}`] = val;
+                            newHighlightedMap[`${index}`] = index;
                         }
                         this.setState({ highlightedMap: newHighlightedMap });
                     }}
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}
                 />
-                {<button style={{'height': 12}} onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}/>}
+                {
+                    <button onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}>
+                        flip!
+                    </button>
+                    }
                 <Footer />
             </div>
         );
