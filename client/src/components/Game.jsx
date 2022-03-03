@@ -13,8 +13,9 @@ class Game extends React.Component {
         this.state = {
             turn: 'w',
             player: 'w',
+            selected: null,
             isBoardReversed: false,
-            highlightedMap: {},//range 0-63
+            moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
             boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
             moves: [],//algebraic move strings
@@ -36,7 +37,7 @@ class Game extends React.Component {
         this.setState({
             boards: [...boards, boardString],
             boardIndex: boardIndex + 1
-        })
+        });
     }
 
     componentWillUnmount(){
@@ -51,9 +52,10 @@ class Game extends React.Component {
         };
 
         const { 
+            selected,
             turn,
             player,
-            highlightedMap,
+            moveMap,
             boards, 
             boardIndex, 
             isBoardReversed,
@@ -67,15 +69,16 @@ class Game extends React.Component {
                 <Header />
                 <Board
                     disabled={player !== turn}
-                    highlightedMap={highlightedMap}
-                    onSelection={(index, symbol) => { 
-                        let newHighlightedMap = {};
+                    selected={selected}
+                    moveMap={moveMap}
+                    onSelection={(index, symbol) => {
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         if (symbol != EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
-                            newHighlightedMap[`${index}`] = index;
+                            this.setState({selected: index});
+                        }else{
+                            this.setState({selected: null});
                         }
-                        this.setState({ highlightedMap: newHighlightedMap });
                     }}
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}

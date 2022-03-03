@@ -10,8 +10,6 @@ function invertIndex(index){
 class Board extends Component{
     constructor(props){
         super(props);
-        this.state = {
-        }
     }
 
     render(){
@@ -22,31 +20,34 @@ class Board extends Component{
         const darkSquare = '#D18B47';
         const lightSquare = '#FFCE9E';
         const highlighted = '#72FCF1';
-
+        
         const {
             disabled,
+            selected,
             board, 
-            isReversed,
-            highlightedMap,
+            isReversed, 
+            moveMap,
             onSelection,
         } = this.props;
         //immutably flip inputs if isReversed
         let ranks = isReversed ? RANKS.reverse() : RANKS;
         let files = isReversed ? FILES.reverse() : FILES;
 
+        let selectedOriented = isReversed && selected ? invertIndex(selected) : selected;
+
         let boardOriented = [];
         if (board && board.length){
             let boardArr = board.split('');
             boardOriented = isReversed ? boardArr.reverse(): boardArr;
         }
-        let highlightedMapOriented = {};
+        let moveMapOriented = {};
         if (isReversed){
-            Object.keys(highlightedMap).forEach(key => {
+            Object.keys(moveMap).forEach(key => {
                 let flippedIndex = invertIndex(key);
-                highlightedMapOriented[flippedIndex] = flippedIndex;
+                moveMapOriented[flippedIndex] = flippedIndex;
             });
         }else{
-            highlightedMapOriented = highlightedMap;
+            moveMapOriented = moveMap;
         }
         return(
             <div style={root}>
@@ -56,7 +57,7 @@ class Board extends Component{
                     let col = index%NUM_COLS;
                     let file = files[col];
                     let isLightSquare = Boolean(row % 2 === col % 2);
-                    let backgroundColor = index in highlightedMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
+                    let backgroundColor = index === selectedOriented || index in moveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
                     let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                     return (
                         <Fragment key={`${rank}-${file}`}>
@@ -64,7 +65,12 @@ class Board extends Component{
                                 position={`${file}${rank}`}
                                 backgroundColor={backgroundColor}
                                 symbol={symbol}
-                                onSelection={() => !disabled && onSelection(absoluteIndex, symbol)}
+                                onSelection={() => {
+                                    if (!disabled){
+                                        onSelection(absoluteIndex, symbol);
+                                        this.setState({selected: absoluteIndex});
+                                    }
+                                }}
                             />
                         </Fragment>
                     );
