@@ -19,6 +19,7 @@ var isMoveValid = {
 
 class Chessboard{
     constructor(){
+        this.possibleMoves = [];
         this.whiteCastle = 'KQ';
         this.blackCastle = 'kq';
         this.moveCounter = 1;
@@ -54,11 +55,9 @@ class Chessboard{
         this.board[7][7] = new Piece('r', 'w');
     }
 
-    generateMoves(){}
-    generateMovesFromSan(san){//accepts a1, b3, etc.
-        let coords = positionToCoords(san);
-        let row = coords[0];
-        let col = coords[1];
+    generateMoves(row, col){
+        console.log(row);
+        console.log(col);
         let piece = this.board[row][col];
 
         let moveList = [];//start as pairs (row, col) => (uci) 
@@ -66,25 +65,37 @@ class Chessboard{
         //no moves for enemy pieces or empty squares
         if (!piece || piece.color !== this.turn){ return output; }
         switch(piece.type){
-            case 'p':
-                return output;
-            case 'n':
-                return output;;
-            case 'r':
-                return output;;
-            case 'b':
-                return output;;
-            case 'k':
-                return output;;
-            case 'q':
-                return output;;
-            default:
-                return output;;
+            //case 'p':
+            //    return;
+            //case 'n':
+            //    return;
+            //case 'r':
+            //    return;
+            //case 'b':
+            //    return;
+            //case 'k':
+            //    return;
+            //case 'q':
+            //    return;
+            //default:
+                //return;
         }
+        let prev = row * 8 + col + 1;
+        this.possibleMoves = [prev];
     }
-    generateMovesFromCoord(coord){
-        if (coord.length != 2) {return [];}
+    
+    generateMovesFromIndex(index){
+        let row = Math.trunc(index/NUM_ROWS);
+        let col = index%NUM_COLS;
+        this.generateMoves(row, col);
     }
+    generateMovesFromSan(san){//accepts a1, b3, etc.
+        let coords = positionToCoords(san);
+        let row = coords[0];
+        let col = coords[1];
+        this.generateMoves(row, col);
+    }
+    
 
     pushUci(move){
         let startCoords = positionToCoords(move.substring(0,2));

@@ -75,7 +75,18 @@ class Game extends React.Component {
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         if (symbol != EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
-                            this.setState({selected: index});
+                            this.setState({});
+                            //generate possible moves for movemap
+                            this.chessboard.generateMovesFromIndex(index);
+                            let possibleMoves = this.chessboard.possibleMoves;
+                            console.log(possibleMoves);
+                            let moveMap = {};
+                            possibleMoves.forEach(move => moveMap[move] = move);
+                            //permit board to highlight selected piece, along with its possible moves
+                            this.setState({
+                                selected: index,
+                                moveMap: moveMap
+                            });
                         }else{
                             this.setState({selected: null});
                         }
