@@ -59,8 +59,11 @@ class Game extends React.Component {
             isBoardReversed,
         } = this.state;
 
+        let turnColor = turn === 'w' ? 'White' : 'Black';
+        let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
         return(
             <div style={root}>
+                <div>{ `Player vs Stockfish! ${turnString}`}</div>
                 <Header />
                 <Board
                     disabled={player !== turn}

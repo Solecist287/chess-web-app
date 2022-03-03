@@ -1,10 +1,7 @@
 import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
 
-import { NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
-
-let rankList = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
-let fileList = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
+import { RANKS, FILES, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
 
 function invertIndex(index){
     return Math.abs(index - (NUM_COLS * NUM_ROWS - 1));
@@ -34,8 +31,8 @@ class Board extends Component{
             onSelection,
         } = this.props;
         //immutably flip inputs if isReversed
-        let ranks = isReversed ? rankList.reverse() : rankList;
-        let files = isReversed ? fileList.reverse() : fileList;
+        let ranks = isReversed ? RANKS.reverse() : RANKS;
+        let files = isReversed ? FILES.reverse() : FILES;
 
         let boardOriented = [];
         if (board && board.length){

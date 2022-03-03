@@ -1,6 +1,9 @@
 export const NUM_ROWS = 8;
 export const NUM_COLS = 8;
 export const EMPTY_SQUARE = ' ';
+export const RANKS = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
+export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
+
 //algebraic notation to [row, col]
 export function positionToCoords(san){
     let row = Math.abs(Number(san[1]) - NUM_ROWS);
@@ -36,15 +39,3 @@ export const fenCharMap = {
     '7': 'xxxxxxx',
     '8': 'xxxxxxxx'    
 }
-/*
-export function reverseStr(string){
-    if (!string || !string.length){
-        return null;
-    }
-    let output = '';
-    for (let i = string.length - 1; i >= 0; i--){
-        output += string.charAt(i);
-    }
-    return output;
-}
-*/
