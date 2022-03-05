@@ -53,23 +53,20 @@ class Chessboard{
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
 
-        this.board[3][1] = new Piece('r', 'w');
+        this.board[3][0] = new Piece('r', 'w');
     }
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
         let board = chessboard.board;
         let piece = board[row][col];
-        
-        let moves1d = [];//final
+        let output = [];//final
         let moves2d = [];//start as pairs (row, col) => (uci) 
-        if (!piece){ return moves1d; }
+        if (!piece){ return output; }
         //trust that this turn was set appropriately
         let turn = piece.color;
-        
-        
         switch(piece.type){
             //case 'p'://pawn
-            //    return;
+            //    break;
             case 'n'://knight
                 moves2d.push([row - 2, col - 1]);
                 moves2d.push([row - 2, col + 1]);
@@ -80,7 +77,7 @@ class Chessboard{
                 moves2d.push([row + 2, col - 1]);
                 moves2d.push([row + 2, col + 1]);
                 //coord bound check and piece check
-                return moves2d.filter(coord => {
+                moves2d = moves2d.filter(coord => {
                     let crow = coord[0];
                     let ccol = coord[1];
                     if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
@@ -91,7 +88,8 @@ class Chessboard{
                         }
                     }
                     return false;
-                }).map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
+                });
+                break;
             case 'r'://rook
                 for (let i = row - 1; i > -1; i--){//up
                     let piece = board[i][col];
@@ -125,18 +123,17 @@ class Chessboard{
                     }
                     moves2d.push([row, j]);
                 }
-                return moves2d.map(coord => coordsToIndex(coord[0], coord[1]));
-            //case 'b'://bishop
-            //    return;
+                break;
+            case 'b'://bishop
+                break;
             //case 'k'://king
-            //    return;
+            //    break;
             //case 'q'://queen
-            //    return;
+            //    break;
             //default://?? other
             //    break;
-                //return;
         }
-        return moves1d;
+        return moves2d.map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
     }
     
     static generateMovesFromIndex(index, chessboard){
