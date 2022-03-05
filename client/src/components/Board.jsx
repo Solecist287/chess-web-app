@@ -66,9 +66,8 @@ class Board extends Component{
                                 backgroundColor={backgroundColor}
                                 symbol={symbol}
                                 onSelection={() => {
-                                    if (!disabled){
+                                    if (!disabled){//is enabled when it's your turn
                                         onSelection(absoluteIndex, symbol);
-                                        this.setState({selected: absoluteIndex});
                                     }
                                 }}
                             />

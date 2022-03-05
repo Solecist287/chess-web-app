@@ -74,11 +74,10 @@ class Game extends React.Component {
                     onSelection={(index, symbol) => {
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
-                        if (symbol != EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
-                            this.setState({});
+                        //only select square where it has a piece you own
+                        if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
                             //generate possible moves for movemap
-                            this.chessboard.generateMovesFromIndex(index);
-                            let possibleMoves = this.chessboard.possibleMoves;
+                            let possibleMoves = Chessboard.generateMovesFromIndex(index, this.chessboard);
                             console.log(possibleMoves);
                             let moveMap = {};
                             possibleMoves.forEach(move => moveMap[move] = move);
@@ -88,7 +87,7 @@ class Game extends React.Component {
                                 moveMap: moveMap
                             });
                         }else{
-                            this.setState({selected: null});
+                            this.setState({selected: null, moveMap: {}});
                         }
                     }}
                     board={boards[boardIndex]}
