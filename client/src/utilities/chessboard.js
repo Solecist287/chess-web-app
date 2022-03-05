@@ -52,6 +52,8 @@ class Chessboard{
         this.board[7][5] = new Piece('b', 'w');
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
+
+        this.board[3][1] = new Piece('r', 'w');
     }
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
@@ -90,8 +92,40 @@ class Chessboard{
                     }
                     return false;
                 }).map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
-            //case 'r'://rook
-            //    return;
+            case 'r'://rook
+                for (let i = row - 1; i > -1; i--){//up
+                    let piece = board[i][col];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([i, col]); }
+                        break;
+                    }
+                    moves2d.push([i, col]);
+                }
+                for (let i = row + 1; i < NUM_ROWS; i++){//down
+                    let piece = board[i][col];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([i, col]); }
+                        break;
+                    }
+                    moves2d.push([i, col]);
+                }
+                for (let j = col - 1; j > -1; j--){//left
+                    let piece = board[row][j];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([row, j]); }
+                        break;
+                    }
+                    moves2d.push([row, j]);
+                }
+                for (let j = col + 1; j < NUM_COLS; j++){//right
+                    let piece = board[row][j];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([row, j]); }
+                        break;
+                    }
+                    moves2d.push([row, j]);
+                }
+                return moves2d.map(coord => coordsToIndex(coord[0], coord[1]));
             //case 'b'://bishop
             //    return;
             //case 'k'://king
