@@ -1,4 +1,4 @@
-import { fenCharMap, positionToCoords, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
+import { fenCharMap, sanToCoords, coordsToIndex, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -53,38 +53,52 @@ class Chessboard{
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
     }
-
+    //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
-        
         let board = chessboard.board;
         let piece = board[row][col];
+        let output = [];
+        if (!piece){ return output; }
         //trust that this turn was set appropriately
         let turn = piece.color;
-        console.log(row);
-        console.log(col);
-        let moveList = [];//start as pairs (row, col) => (uci) 
-        let output = [];
-        //no moves for enemy pieces or empty squares
-
-        if (!piece){ return output; }
-        //switch(piece.type){
-            //case 'p':
+        let moves2d = [];//start as pairs (row, col) => (uci) 
+        let moves1d = [];
+        switch(piece.type){
+            //case 'p'://pawn
             //    return;
-            //case 'n':
+            case 'n'://knight
+                moves2d.push([row - 2, col - 1]);
+                moves2d.push([row - 2, col + 1]);
+                moves2d.push([row - 1, col - 2]);
+                moves2d.push([row - 1, col + 2]);
+                moves2d.push([row + 1, col - 2]);
+                moves2d.push([row + 1, col + 2]);
+                moves2d.push([row + 2, col - 1]);
+                moves2d.push([row + 2, col + 1]);
+                //coord bound check and piece check
+                return moves2d.filter(coord => {
+                    if (coord[0] > -1 && coord[0] < NUM_ROWS && coord[1] > -1 && coord[1] < NUM_COLS){
+                        //look for check later
+                        let coordPiece = board[coord[0]][coord[1]];
+                        if (!coordPiece || coordPiece.color !== turn){
+                            return true;
+                        }
+                    }
+                    return false;
+                }).map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
+            //case 'r'://rook
             //    return;
-            //case 'r':
+            //case 'b'://bishop
             //    return;
-            //case 'b':
+            //case 'k'://king
             //    return;
-            //case 'k':
+            //case 'q'://queen
             //    return;
-            //case 'q':
-            //    return;
-            //default:
+            //default://?? other
+            //    break;
                 //return;
-        //}
-        let pos = row * 8 + col + 1;
-        return [pos];
+        }
+        return output;
     }
     
     static generateMovesFromIndex(index, chessboard){
@@ -93,7 +107,7 @@ class Chessboard{
         return this.generateMoves(row, col, chessboard);
     }
     static generateMovesFromSan(san, chessboard){//accepts a1, b3, etc.
-        let coords = positionToCoords(san);
+        let coords = sanToCoords(san);
         let row = coords[0];
         let col = coords[1];
         return this.generateMoves(row, col, chessboard);
@@ -101,11 +115,11 @@ class Chessboard{
     
 
     pushUci(move){
-        let startCoords = positionToCoords(move.substring(0,2));
+        let startCoords = sanToCoords(move.substring(0,2));
         let startRow = startCoords[0];
         let startCol = startCoords[1];
         let piece = this.board[startRow][startCol];
-        let endCoords = positionToCoords(move.substring(2));
+        let endCoords = sanToCoords(move.substring(2));
         let endRow = endCoords[0];
         let endCol = endCoords[1];
 

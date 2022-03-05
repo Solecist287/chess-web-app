@@ -72,6 +72,7 @@ class Game extends React.Component {
                     selected={selected}
                     moveMap={moveMap}
                     onSelection={(index, symbol) => {
+                        if (index === selected) {return;}
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         //only select square where it has a piece you own

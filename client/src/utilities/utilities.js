@@ -5,16 +5,20 @@ export const RANKS = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
 export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
 
 //algebraic notation to [row, col]
-export function positionToCoords(san){
+export function sanToCoords(san){
     let row = Math.abs(Number(san[1]) - NUM_ROWS);
     let col = Math.abs(san.charCodeAt(0) - 97);
     return [row, col];
 }
 
 //algebraic notation to 1-d index
-export function positionToIndex(san){
-    let coords = positionToCoords(san);
+export function sanToIndex(san){
+    let coords = sanToCoords(san);
     return coords[0] * NUM_ROWS + coords[1];
+}
+
+export function coordsToIndex(row, col){
+    return row * NUM_ROWS + col;
 }
 
 export const fenCharMap = {
