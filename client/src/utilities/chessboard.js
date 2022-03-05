@@ -57,12 +57,14 @@ class Chessboard{
     static generateMoves(row, col, chessboard){
         let board = chessboard.board;
         let piece = board[row][col];
-        let output = [];
-        if (!piece){ return output; }
+        
+        let moves1d = [];//final
+        let moves2d = [];//start as pairs (row, col) => (uci) 
+        if (!piece){ return moves1d; }
         //trust that this turn was set appropriately
         let turn = piece.color;
-        let moves2d = [];//start as pairs (row, col) => (uci) 
-        let moves1d = [];
+        
+        
         switch(piece.type){
             //case 'p'://pawn
             //    return;
@@ -77,9 +79,11 @@ class Chessboard{
                 moves2d.push([row + 2, col + 1]);
                 //coord bound check and piece check
                 return moves2d.filter(coord => {
-                    if (coord[0] > -1 && coord[0] < NUM_ROWS && coord[1] > -1 && coord[1] < NUM_COLS){
+                    let crow = coord[0];
+                    let ccol = coord[1];
+                    if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
                         //look for check later
-                        let coordPiece = board[coord[0]][coord[1]];
+                        let coordPiece = board[crow][ccol];
                         if (!coordPiece || coordPiece.color !== turn){
                             return true;
                         }
@@ -98,7 +102,7 @@ class Chessboard{
             //    break;
                 //return;
         }
-        return output;
+        return moves1d;
     }
     
     static generateMovesFromIndex(index, chessboard){
