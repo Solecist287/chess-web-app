@@ -1,7 +1,7 @@
 import {React, Component, Fragment} from 'react';
 import Tile from './Tile.jsx';
 
-import { RANKS, FILES, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
+import { indexToCoords, RANKS, FILES, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
 
 function invertIndex(index){
     return Math.abs(index - (NUM_COLS * NUM_ROWS - 1));
@@ -52,9 +52,10 @@ class Board extends Component{
         return(
             <div style={root}>
                 {boardOriented.map((symbol, index) => {
-                    let row = Math.trunc(index/NUM_ROWS);
+                    let coords = indexToCoords(index);
+                    let row = coords[0];
                     let rank = ranks[row];
-                    let col = index%NUM_COLS;
+                    let col = coords[1];
                     let file = files[col];
                     let isLightSquare = Boolean(row % 2 === col % 2);
                     let backgroundColor = index === selectedOriented || index in moveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;

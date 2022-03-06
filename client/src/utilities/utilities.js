@@ -17,8 +17,16 @@ export function sanToIndex(san){
     return coords[0] * NUM_ROWS + coords[1];
 }
 
+//(row, col) => num range (0-62 inclusive)
 export function coordsToIndex(row, col){
     return row * NUM_ROWS + col;
+}
+
+//(num) => [row, col]
+export function indexToCoords(index){
+    let row = Math.trunc(index/NUM_ROWS);
+    let col = index%NUM_COLS;
+    return [row, col];
 }
 
 export const fenCharMap = {

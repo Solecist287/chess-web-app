@@ -20,19 +20,19 @@ class Game extends React.Component {
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
             moves: [],//algebraic move strings
         }
-        this.worker = new Worker('stockfish.js');
+        //this.worker = new Worker('stockfish.js');
         this.chessboard = new Chessboard();
     }
 
     componentDidMount(){
         const { boards, boardIndex, } = this.state;
 
-        this.worker.onmessage = function(oEvent) {
-            console.log('Worker said : ' + oEvent.data);
-        };
+        //this.worker.onmessage = function(oEvent) {
+        //    console.log('Worker said : ' + oEvent.data);
+        //};
         //this.worker.postMessage('uci');
-        this.worker.postMessage('ucinewgame');
-        this.worker.postMessage('isready');
+        //this.worker.postMessage('ucinewgame');
+        //this.worker.postMessage('isready');
         let boardString = this.chessboard.toString();
         this.setState({
             boards: [...boards, boardString],
@@ -41,7 +41,7 @@ class Game extends React.Component {
     }
 
     componentWillUnmount(){
-        this.worker.terminate();
+        //this.worker.terminate();
     }
 
     render(){

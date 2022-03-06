@@ -1,4 +1,4 @@
-import { fenCharMap, sanToCoords, coordsToIndex, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
+import { fenCharMap, sanToCoords, coordsToIndex, indexToCoords, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -54,9 +54,9 @@ class Chessboard{
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
 
-        //this.board[3][0] = new Piece('q', 'w');
-        //this.board[3][6] = new Piece('q', 'w');
-        //this.board[3][4] = new Piece('b', 'w');
+        this.board[3][0] = new Piece('r', 'w');
+        this.board[3][6] = new Piece('q', 'w');
+        this.board[3][4] = new Piece('b', 'w');
         //this.board[5][6] = new Piece('r', 'b');
     }
     //current turn is assumed to be owner of clicked piece
@@ -80,14 +80,13 @@ class Chessboard{
                 moves2d.push([row + 1, col + 2]);
                 moves2d.push([row + 2, col - 1]);
                 moves2d.push([row + 2, col + 1]);
-                //coord bound check and piece check
-                moves2d = moves2d.filter(coord => {
-                    let crow = coord[0];
-                    let ccol = coord[1];
+                //coords bound check and piece check
+                moves2d = moves2d.filter(coords => {
+                    let [crow, ccol] = coords;
                     if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
                         //look for check later
-                        let coordPiece = board[crow][ccol];
-                        if (!coordPiece || coordPiece.color !== turn){
+                        let coordsPiece = board[crow][ccol];
+                        if (!coordsPiece || coordsPiece.color !== turn){
                             return true;
                         }
                     }
@@ -130,6 +129,7 @@ class Chessboard{
                     }
                     moves2d.push([row, j]);
                 }
+                if (piece.type !== 'q'){ break; }
             case 'q'://queen poses as rook and bishop
             case 'b'://bishop
                 let uri = row - 1;
@@ -180,8 +180,9 @@ class Chessboard{
                     dri++;
                     drj++;
                 }
+                if (piece.type !== 'q'){ break; }
         }
-        return moves2d.map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
+        return moves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
     }
     
     static generateMovesFromIndex(index, chessboard){
@@ -190,32 +191,57 @@ class Chessboard{
         return this.generateMoves(row, col, chessboard);
     }
     static generateMovesFromSan(san, chessboard){//accepts a1, b3, etc.
-        let coords = sanToCoords(san);
-        let row = coords[0];
-        let col = coords[1];
+        let [row, col] = sanToCoords(san);
         return this.generateMoves(row, col, chessboard);
     }
-    
-
-    pushUci(move){
-        let startCoords = sanToCoords(move.substring(0,2));
-        let startRow = startCoords[0];
-        let startCol = startCoords[1];
-        let piece = this.board[startRow][startCol];
-        let endCoords = sanToCoords(move.substring(2));
-        let endRow = endCoords[0];
-        let endCol = endCoords[1];
-
-        if (!piece || piece.color !== this.turn){ return; }
-        switch (piece.type){
-            case 'p'://en passant case
-                return;
+    //execute move, record last move, change turn?, flag if check then castling check
+    //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
+    pushMove(startRow, startCol, endRow, endCol){
+        let movingPiece = this.board[startRow][startCol];
+        let movingPieceTimesMoved = movingPiece.timesMoved;
+        let dest = this.board[endRow][endCol];
+        if (!movingPiece){ return; }
+        switch (movingPiece.type){
+            case 'p':
+                //en passant: if pawn is attacking and no piece there
+                if (Math.abs(startRow - endRow) === 1 && Math.abs(startCol - endCol) === 1 && !dest){
+                    //movement: positive if downward, negative if upward
+                    let forward = Math.sign(endRow - startRow);
+                    //delete victim piece in en passant
+                    this.board[endRow - forward][endCol] = null;
+                }
+                break;
             case 'k'://castling case
-                return;
-            default:
-                return;
+                if (Math.abs(startCol - endCol) === 2){
+                    //grab columns of castling rook starting and ending position
+                    let rookEndCol = endCol - startCol > 0 ? NUM_COLS - 3 : 3;
+                    let rookStartCol = endCol - startCol > 0 ? NUM_COLS - 1 : 0;
+                    let castlingRook = this.board[startRow][rookStartCol];
+                    //move rook
+                    this.board[endRow][rookEndCol] = castlingRook;//move to new place
+                    this.board[endRow][rookEndCol].timesMoved = 1;//update rook move count
+                    this.board[startRow][rookStartCol] = null;//clear original
+                }
+                break;
         }
+        //do base move for all pieces including above cases
+        this.board[endRow][endCol] = movingPiece;//set to destination
+        this.board[endRow][endCol].timesMoved = movingPieceTimesMoved + 1;//increment move count
+        this.board[startRow][startCol] = null;//clear original
     }
+
+    pushUciMove(move){//e.g. 'e5e7'
+        let [startRow, startCol] = sanToCoords(move.substring(0,2));
+        let [endRow, endCol] = sanToCoords(move.substring(2));
+        this.pushMove(startRow, startCol, endRow, endCol);
+    }
+
+    pushIndexMove(startIndex, endIndex){
+        let [startRow, startCol] = indexToCoords(startIndex);
+        let [endRow, endCol] = indexToCoords(endIndex);
+        this.pushMove(startRow, startCol, endRow, endCol);
+    }
+
     isKingInCheck(){
         //iterate thru and add enemies to list and current king
         //using this.turn
