@@ -35,6 +35,7 @@ class Chessboard{
             this.board[6][j] = new Piece('p', 'w');//w pawns
         }
         //add rest of black pieces
+        
         this.board[0][0] = new Piece('r', 'b');
         this.board[0][1] = new Piece('n', 'b');
         this.board[0][2] = new Piece('b', 'b');
@@ -53,7 +54,10 @@ class Chessboard{
         this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
 
-        this.board[3][0] = new Piece('r', 'w');
+        //this.board[3][0] = new Piece('q', 'w');
+        //this.board[3][6] = new Piece('q', 'w');
+        //this.board[3][4] = new Piece('b', 'w');
+        //this.board[5][6] = new Piece('r', 'b');
     }
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
@@ -90,6 +94,9 @@ class Chessboard{
                     return false;
                 });
                 break;
+            //case 'k'://king
+            //    break;
+            case 'q'://queen poses as rook and bishop
             case 'r'://rook
                 for (let i = row - 1; i > -1; i--){//up
                     let piece = board[i][col];
@@ -123,15 +130,56 @@ class Chessboard{
                     }
                     moves2d.push([row, j]);
                 }
-                break;
+            case 'q'://queen poses as rook and bishop
             case 'b'://bishop
-                break;
-            //case 'k'://king
-            //    break;
-            //case 'q'://queen
-            //    break;
-            //default://?? other
-            //    break;
+                let uri = row - 1;
+                let urj = col + 1;
+                while (uri > -1 && urj < NUM_COLS){//upper right
+                    let piece = board[uri][urj];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([uri, urj]); }
+                        break;
+                    }
+                    moves2d.push([uri, urj]);
+                    uri--;
+                    urj++;
+                }
+                let dli = row + 1;
+                let dlj = col - 1;
+                while (dli < NUM_ROWS && dlj > -1){//down left
+                    let piece = board[dli][dlj];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([dli, dlj]); }
+                        break;
+                    }
+                    moves2d.push([dli, dlj]);
+                    dli++;
+                    dlj--;
+                }
+                let uli = row - 1;
+                let ulj = col - 1;
+                while (uli > -1 && ulj > -1){//up left
+                    let piece = board[uli][ulj];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([uli, ulj]); }
+                        break;
+                    }
+                    moves2d.push([uli, ulj]);
+                    uli--;
+                    ulj--;
+                }
+                let dri = row + 1;
+                let drj = col + 1;
+                while (dri < NUM_ROWS && drj < NUM_COLS){//down right
+                    let piece = board[dri][drj];
+                    if (piece){//collided with a piece
+                        if (piece.color !== turn){ moves2d.push([dri, drj]); }
+                        break;
+                    }
+                    moves2d.push([dri, drj]);
+                    dri++;
+                    drj++;
+                }
         }
         return moves2d.map(coord2d => coordsToIndex(coord2d[0], coord2d[1]));
     }
