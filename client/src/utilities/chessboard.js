@@ -33,7 +33,7 @@ class Chessboard{
         //add pawns
         for (let j = 0; j < NUM_COLS; j++){//pawns
             this.board[1][j] = new Piece('p', 'b'); //b pawns
-            this.board[6][j] = new Piece('p', 'w');//w pawns
+            //this.board[6][j] = new Piece('p', 'w');//w pawns
         }
         //add rest of black pieces
         
@@ -51,8 +51,8 @@ class Chessboard{
         this.board[7][2] = new Piece('b', 'w');
         this.board[7][3] = new Piece('q', 'w');
         this.board[7][4] = new Piece('k', 'w');
-        this.board[7][5] = new Piece('b', 'w');
-        this.board[7][6] = new Piece('n', 'w');
+        //this.board[7][5] = new Piece('b', 'w');
+        //this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
 
         this.board[3][0] = new Piece('r', 'w');
@@ -70,12 +70,11 @@ class Chessboard{
         let moves2d = [];//start as pairs (row, col) => (index) 
         if (!selected){ return moves2d; }
         let color = selected.color;
-
         let timesMoved = selected.timesMoved;
+
         switch(selected.type){
             case 'p'://pawn
                 let forward = color === 'b' ? 1 : -1;
-                //move forward one space
                 //has a row ahead
                 if (row + forward > -1 && row + forward < NUM_ROWS){
                     //move forward if space is blank
@@ -83,11 +82,12 @@ class Chessboard{
                         moves2d.push([row + forward, col]);
                         //check if can do two space move (checked first already)
                         if (timesMoved === 0 && row + forward * 2 > -1 && row + forward * 2 < NUM_ROWS && !board[row + forward * 2][col]){
-                            moves2d.push([row + forward * 2, col])
+                            moves2d.push([row + forward * 2, col]);
                         }
                     }
                     // if space is accessible on left/right side of board, choose which attack
                     [-1, 1].forEach(side => {
+                        //if diagonal on the board
                         if (col + side < NUM_COLS && col + side > -1 && board[row + forward][col + side]){
                             let forwardSquare = board[row + forward][col + side];
                             let epRow = row;
@@ -97,7 +97,7 @@ class Chessboard{
                                 if (forwardSquare.color !== color){//regular attack
                                     moves2d.push([row + forward, col + side]);
                                 }
-                            }else if (
+                            }else if (//en passant
                                 lastMovedRow === epRow && lastMovedCol === epCol && //last moved piece
                                 epSquare.color !== color && epSquare.type === 'p' && //enemy pawn
                                 epSquare.timesMoved === 1 && 
@@ -110,16 +110,14 @@ class Chessboard{
                 }
                 break;
             case 'n'://knight
-                moves2d.push([row - 2, col - 1]);
-                moves2d.push([row - 2, col + 1]);
-                moves2d.push([row - 1, col - 2]);
-                moves2d.push([row - 1, col + 2]);
-                moves2d.push([row + 1, col - 2]);
-                moves2d.push([row + 1, col + 2]);
-                moves2d.push([row + 2, col - 1]);
-                moves2d.push([row + 2, col + 1]);
+                let unfilteredMoves = [ 
+                    [row - 2, col - 1], [row - 2, col + 1], 
+                    [row - 1, col - 2], [row - 1, col + 2], 
+                    [row + 1, col - 2], [row + 1, col + 2],
+                    [row + 2, col - 1], [row + 2, col + 1]
+                ];
                 //coords bound check and piece check
-                moves2d = moves2d.filter(coords => {
+                moves2d = unfilteredMoves.filter(coords => {
                     let [crow, ccol] = coords;
                     if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
                         //look for check later
@@ -131,8 +129,57 @@ class Chessboard{
                     return false;
                 });
                 break;
-            //case 'k'://king
-            //    break;
+            case 'k'://king
+                let directionalMoves = [
+                    [row + 1, col],//down
+                    [row + 1, col - 1],//down left
+                    [row + 1, col + 1],//down right
+                    [row - 1, col],//up
+                    [row - 1, col - 1],//up left
+                    [row - 1, col + 1],//up right
+                    [row, col - 1],//left
+                    [row, col + 1]//right
+                ];
+                moves2d = directionalMoves.filter(coords => {
+                    let [crow, ccol] = coords;
+                    if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
+                        //look for check later
+                        let coordsPiece = board[crow][ccol];
+                        if (!coordsPiece || coordsPiece.color !== color){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+                if (timesMoved === 0){//king can castle
+                    let rightRook = board[row][NUM_COLS - 1];
+                    if (rightRook && rightRook.type === 'r' && rightRook.color === color && rightRook.timesMoved === 0){//rooks on right side of board castle
+                        let areMiddleSquaresClear = true;
+                        for (let j = col + 1; j < NUM_COLS - 1; j++){
+                            if (board[row][j]){ 
+                                areMiddleSquaresClear = false;    
+                                break; 
+                            }
+                        }
+                        if (areMiddleSquaresClear){
+                            moves2d.push([row, col + 2]);
+                        }
+                    }
+                    let leftRook = board[row][0];
+                    if (leftRook && leftRook.type === 'r' && leftRook.color === color && leftRook.timesMoved === 0){//rooks on left side of board castle
+                        let areMiddleSquaresClear = true;
+                        for (let j = 1; j < col; j++){
+                            if (board[row][j]) /*or square in check*/{ 
+                                areMiddleSquaresClear = false;    
+                                break; 
+                            }
+                        }
+                        if (areMiddleSquaresClear){
+                            moves2d.push([row, col - 2]);
+                        }
+                    }
+                }
+                break;
             case 'q'://queen poses as rook and bishop
             case 'r'://rook
                 for (let i = row - 1; i > -1; i--){//up
