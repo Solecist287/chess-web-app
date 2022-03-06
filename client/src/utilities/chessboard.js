@@ -22,7 +22,8 @@ class Chessboard{
         this.whiteCastle = 'KQ';
         this.blackCastle = 'kq';
         this.moveCounter = 1;
-        this.lastMoved = null;
+        this.lastMovedRow = null;
+        this.lastMovedCol = null;
         this.turn = 'w';
         this.board = new Array(NUM_ROWS);
         //INITIALIZE BOARD w/ 2-d array and fill with nulls
@@ -62,15 +63,52 @@ class Chessboard{
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
         let board = chessboard.board;
-        let piece = board[row][col];
-        let output = [];//final
-        let moves2d = [];//start as pairs (row, col) => (uci) 
-        if (!piece){ return output; }
-        //trust that this turn was set appropriately
-        let turn = piece.color;
-        switch(piece.type){
-            //case 'p'://pawn
-            //    break;
+        let selected = board[row][col];
+        let lastMovedRow = board.lastMovedRow;
+        let lastMovedCol = board.lastMovedCol;
+
+        let moves2d = [];//start as pairs (row, col) => (index) 
+        if (!selected){ return moves2d; }
+        let color = selected.color;
+
+        let timesMoved = selected.timesMoved;
+        switch(selected.type){
+            case 'p'://pawn
+                let forward = color === 'b' ? 1 : -1;
+                //move forward one space
+                //has a row ahead
+                if (row + forward > -1 && row + forward < NUM_ROWS){
+                    //move forward if space is blank
+                    if (!board[row + forward][col]){
+                        moves2d.push([row + forward, col]);
+                        //check if can do two space move (checked first already)
+                        if (timesMoved === 0 && row + forward * 2 > -1 && row + forward * 2 < NUM_ROWS && !board[row + forward * 2][col]){
+                            moves2d.push([row + forward * 2, col])
+                        }
+                    }
+                    // if space is accessible on left/right side of board, choose which attack
+                    [-1, 1].forEach(side => {
+                        if (col + side < NUM_COLS && col + side > -1 && board[row + forward][col + side]){
+                            let forwardSquare = board[row + forward][col + side];
+                            let epRow = row;
+                            let epCol = col + side;
+                            let epSquare = board[epRow][epCol];
+                            if (forwardSquare){//rule out en passant if occupied
+                                if (forwardSquare.color !== color){//regular attack
+                                    moves2d.push([row + forward, col + side]);
+                                }
+                            }else if (
+                                lastMovedRow === epRow && lastMovedCol === epCol && //last moved piece
+                                epSquare.color !== color && epSquare.type === 'p' && //enemy pawn
+                                epSquare.timesMoved === 1 && 
+                                ((epSquare.color === 'w' && epRow === 4) || (epSquare.color === 'b' && epRow === 3))
+                            ){
+                                moves2d.push([epRow, epCol]);
+                            }
+                        }
+                    });
+                }
+                break;
             case 'n'://knight
                 moves2d.push([row - 2, col - 1]);
                 moves2d.push([row - 2, col + 1]);
@@ -86,7 +124,7 @@ class Chessboard{
                     if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
                         //look for check later
                         let coordsPiece = board[crow][ccol];
-                        if (!coordsPiece || coordsPiece.color !== turn){
+                        if (!coordsPiece || coordsPiece.color !== color){
                             return true;
                         }
                     }
@@ -100,7 +138,7 @@ class Chessboard{
                 for (let i = row - 1; i > -1; i--){//up
                     let piece = board[i][col];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([i, col]); }
+                        if (piece.color !== color){ moves2d.push([i, col]); }
                         break;
                     }
                     moves2d.push([i, col]);
@@ -108,7 +146,7 @@ class Chessboard{
                 for (let i = row + 1; i < NUM_ROWS; i++){//down
                     let piece = board[i][col];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([i, col]); }
+                        if (piece.color !== color){ moves2d.push([i, col]); }
                         break;
                     }
                     moves2d.push([i, col]);
@@ -116,7 +154,7 @@ class Chessboard{
                 for (let j = col - 1; j > -1; j--){//left
                     let piece = board[row][j];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([row, j]); }
+                        if (piece.color !== color){ moves2d.push([row, j]); }
                         break;
                     }
                     moves2d.push([row, j]);
@@ -124,12 +162,12 @@ class Chessboard{
                 for (let j = col + 1; j < NUM_COLS; j++){//right
                     let piece = board[row][j];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([row, j]); }
+                        if (piece.color !== color){ moves2d.push([row, j]); }
                         break;
                     }
                     moves2d.push([row, j]);
                 }
-                if (piece.type !== 'q'){ break; }
+                if (selected.type !== 'q'){ break; }
             case 'q'://queen poses as rook and bishop
             case 'b'://bishop
                 let uri = row - 1;
@@ -137,7 +175,7 @@ class Chessboard{
                 while (uri > -1 && urj < NUM_COLS){//upper right
                     let piece = board[uri][urj];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([uri, urj]); }
+                        if (piece.color !== color){ moves2d.push([uri, urj]); }
                         break;
                     }
                     moves2d.push([uri, urj]);
@@ -149,7 +187,7 @@ class Chessboard{
                 while (dli < NUM_ROWS && dlj > -1){//down left
                     let piece = board[dli][dlj];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([dli, dlj]); }
+                        if (piece.color !== color){ moves2d.push([dli, dlj]); }
                         break;
                     }
                     moves2d.push([dli, dlj]);
@@ -161,7 +199,7 @@ class Chessboard{
                 while (uli > -1 && ulj > -1){//up left
                     let piece = board[uli][ulj];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([uli, ulj]); }
+                        if (piece.color !== color){ moves2d.push([uli, ulj]); }
                         break;
                     }
                     moves2d.push([uli, ulj]);
@@ -173,14 +211,14 @@ class Chessboard{
                 while (dri < NUM_ROWS && drj < NUM_COLS){//down right
                     let piece = board[dri][drj];
                     if (piece){//collided with a piece
-                        if (piece.color !== turn){ moves2d.push([dri, drj]); }
+                        if (piece.color !== color){ moves2d.push([dri, drj]); }
                         break;
                     }
                     moves2d.push([dri, drj]);
                     dri++;
                     drj++;
                 }
-                if (piece.type !== 'q'){ break; }
+                if (selected.type !== 'q'){ break; }
         }
         return moves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
     }
@@ -198,6 +236,7 @@ class Chessboard{
     //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
     pushMove(startRow, startCol, endRow, endCol){
         let movingPiece = this.board[startRow][startCol];
+        if (!movingPiece){ return; }
         let movingPieceTimesMoved = movingPiece.timesMoved;
         let dest = this.board[endRow][endCol];
         if (!movingPiece){ return; }
@@ -228,6 +267,8 @@ class Chessboard{
         this.board[endRow][endCol] = movingPiece;//set to destination
         this.board[endRow][endCol].timesMoved = movingPieceTimesMoved + 1;//increment move count
         this.board[startRow][startCol] = null;//clear original
+        this.lastMovedRow = endRow;
+        this.lastMovedCol = endCol;
     }
 
     pushUciMove(move){//e.g. 'e5e7'
