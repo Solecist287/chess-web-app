@@ -19,12 +19,8 @@ var isMoveValid = {
 
 class Chessboard{
     constructor(){
-        this.whiteCastle = 'KQ';
-        this.blackCastle = 'kq';
-        this.moveCounter = 1;
         this.lastMovedRow = null;
         this.lastMovedCol = null;
-        this.turn = 'w';
         this.board = new Array(NUM_ROWS);
         //INITIALIZE BOARD w/ 2-d array and fill with nulls
         for (let i = 0; i < NUM_ROWS; i++){
@@ -33,10 +29,9 @@ class Chessboard{
         //add pawns
         for (let j = 0; j < NUM_COLS; j++){//pawns
             this.board[1][j] = new Piece('p', 'b'); //b pawns
-            //this.board[6][j] = new Piece('p', 'w');//w pawns
+            this.board[6][j] = new Piece('p', 'w');//w pawns
         }
         //add rest of black pieces
-        
         this.board[0][0] = new Piece('r', 'b');
         this.board[0][1] = new Piece('n', 'b');
         this.board[0][2] = new Piece('b', 'b');
@@ -51,21 +46,21 @@ class Chessboard{
         this.board[7][2] = new Piece('b', 'w');
         this.board[7][3] = new Piece('q', 'w');
         this.board[7][4] = new Piece('k', 'w');
-        //this.board[7][5] = new Piece('b', 'w');
-        //this.board[7][6] = new Piece('n', 'w');
+        this.board[7][5] = new Piece('b', 'w');
+        this.board[7][6] = new Piece('n', 'w');
         this.board[7][7] = new Piece('r', 'w');
 
-        this.board[3][0] = new Piece('r', 'w');
-        this.board[3][6] = new Piece('q', 'w');
-        this.board[3][4] = new Piece('b', 'w');
+        //this.board[3][0] = new Piece('r', 'w');
+        //this.board[3][6] = new Piece('q', 'w');
+        //this.board[3][4] = new Piece('b', 'w');
         //this.board[5][6] = new Piece('r', 'b');
     }
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chessboard){
         let board = chessboard.board;
         let selected = board[row][col];
-        let lastMovedRow = board.lastMovedRow;
-        let lastMovedCol = board.lastMovedCol;
+        let lastMovedRow = chessboard.lastMovedRow;
+        let lastMovedCol = chessboard.lastMovedCol;
 
         let moves2d = [];//start as pairs (row, col) => (index) 
         if (!selected){ return moves2d; }
@@ -88,13 +83,13 @@ class Chessboard{
                     // if space is accessible on left/right side of board, choose which attack
                     [-1, 1].forEach(side => {
                         //if diagonal on the board
-                        if (col + side < NUM_COLS && col + side > -1 && board[row + forward][col + side]){
-                            let forwardSquare = board[row + forward][col + side];
+                        if (col + side < NUM_COLS && col + side > -1){
+                            let diagonal = board[row + forward][col + side];
                             let epRow = row;
                             let epCol = col + side;
                             let epSquare = board[epRow][epCol];
-                            if (forwardSquare){//rule out en passant if occupied
-                                if (forwardSquare.color !== color){//regular attack
+                            if (diagonal){//rule out en passant if occupied
+                                if (diagonal.color !== color){//regular attack
                                     moves2d.push([row + forward, col + side]);
                                 }
                             }else if (//en passant
@@ -103,7 +98,7 @@ class Chessboard{
                                 epSquare.timesMoved === 1 && 
                                 ((epSquare.color === 'w' && epRow === 4) || (epSquare.color === 'b' && epRow === 3))
                             ){
-                                moves2d.push([epRow, epCol]);
+                                moves2d.push([row + forward, col + side]);
                             }
                         }
                     });
@@ -215,7 +210,6 @@ class Chessboard{
                     moves2d.push([row, j]);
                 }
                 if (selected.type !== 'q'){ break; }
-            case 'q'://queen poses as rook and bishop
             case 'b'://bishop
                 let uri = row - 1;
                 let urj = col + 1;
@@ -266,6 +260,8 @@ class Chessboard{
                     drj++;
                 }
                 if (selected.type !== 'q'){ break; }
+            default:
+                break;
         }
         return moves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
     }
@@ -308,6 +304,8 @@ class Chessboard{
                     this.board[endRow][rookEndCol].timesMoved = 1;//update rook move count
                     this.board[startRow][rookStartCol] = null;//clear original
                 }
+                break;
+            default:
                 break;
         }
         //do base move for all pieces including above cases

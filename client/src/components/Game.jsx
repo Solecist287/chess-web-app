@@ -75,8 +75,20 @@ class Game extends React.Component {
                         if (index === selected) {return;}
                         let isPlayerWhite = player === 'w';
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
+                        //if move is in movemap
+                        if (index in moveMap){
+                            this.chessboard.pushIndexMove(selected, index);
+                            this.setState({
+                                selected: null,
+                                turn: turn === 'w' ? 'b': 'w',
+                                player: player === 'w' ? 'b' : 'w',//remove later
+                                moveMap: {},
+                                boards: [...boards, this.chessboard.toString()],
+                                boardIndex: boardIndex + 1
+                            });
+                        }
                         //only select square where it has a piece you own
-                        if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
+                        else if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
                             //generate possible moves for movemap
                             let possibleMoves = Chessboard.generateMovesFromIndex(index, this.chessboard);
                             let moveMap = possibleMoves.reduce((map, move) => {
@@ -88,7 +100,7 @@ class Game extends React.Component {
                                 selected: index,
                                 moveMap: moveMap
                             });
-                        }else{
+                        }else{//blank square
                             this.setState({selected: null, moveMap: {}});
                         }
                     }}

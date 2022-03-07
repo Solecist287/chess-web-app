@@ -8,10 +8,6 @@ function invertIndex(index){
 }
 
 class Board extends Component{
-    constructor(props){
-        super(props);
-    }
-
     render(){
         const root = {
             maxWidth: '80vh',
@@ -52,10 +48,8 @@ class Board extends Component{
         return(
             <div style={root}>
                 {boardOriented.map((symbol, index) => {
-                    let coords = indexToCoords(index);
-                    let row = coords[0];
+                    let [row, col] = indexToCoords(index);
                     let rank = ranks[row];
-                    let col = coords[1];
                     let file = files[col];
                     let isLightSquare = Boolean(row % 2 === col % 2);
                     let backgroundColor = index === selectedOriented || index in moveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
