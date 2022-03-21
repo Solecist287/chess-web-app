@@ -29,6 +29,11 @@ export function indexToCoords(index){
     return [row, col];
 }
 
+//checks if row and col are within bounds of the board
+export function areCoordsWithinBounds(row, col){
+    return row < NUM_ROWS && row > -1 && col < NUM_COLS && col > -1;
+}
+
 export const fenCharMap = {
     'b': 'b',
     'B': 'B',

@@ -100,8 +100,6 @@ class Game extends React.Component {
                                 selected: index,
                                 moveMap: moveMap
                             });
-                        }else{//blank square
-                            this.setState({selected: null, moveMap: {}});
                         }
                     }}
                     board={boards[boardIndex]}

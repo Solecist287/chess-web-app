@@ -1,4 +1,4 @@
-import { fenCharMap, sanToCoords, coordsToIndex, indexToCoords, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, isUpperCase } from './utilities.js';
+import { sanToCoords, coordsToIndex, indexToCoords, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -8,17 +8,12 @@ class Piece{
     }
 }
 
-var isMoveValid = {
-    'p': function(){},
-    'n': function(){},
-    'r': function(){},
-    'b': function(){},
-    'k': function(){},
-    'q': function(){},
-};
-
 class Chessboard{
     constructor(){
+        this.whiteKingRow = 7;
+        this.whiteKingCol = 4;
+        this.blackKingRow = 0;
+        this.blackKingCol = 4;
         this.lastMovedRow = null;
         this.lastMovedCol = null;
         this.board = new Array(NUM_ROWS);
@@ -114,7 +109,7 @@ class Chessboard{
                 //coords bound check and piece check
                 moves2d = unfilteredMoves.filter(coords => {
                     let [crow, ccol] = coords;
-                    if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
+                    if (areCoordsWithinBounds(crow, ccol)){
                         //look for check later
                         let coordsPiece = board[crow][ccol];
                         if (!coordsPiece || coordsPiece.color !== color){
@@ -137,7 +132,7 @@ class Chessboard{
                 ];
                 moves2d = directionalMoves.filter(coords => {
                     let [crow, ccol] = coords;
-                    if (crow > -1 && crow < NUM_ROWS && ccol > -1 && ccol < NUM_COLS){
+                    if (areCoordsWithinBounds(crow, ccol)){
                         //look for check later
                         let coordsPiece = board[crow][ccol];
                         if (!coordsPiece || coordsPiece.color !== color){
@@ -280,6 +275,7 @@ class Chessboard{
     pushMove(startRow, startCol, endRow, endCol){
         let movingPiece = this.board[startRow][startCol];
         if (!movingPiece){ return; }
+        let movingPieceColor = movingPiece.color;
         let movingPieceTimesMoved = movingPiece.timesMoved;
         let dest = this.board[endRow][endCol];
         if (!movingPiece){ return; }
@@ -303,6 +299,14 @@ class Chessboard{
                     this.board[endRow][rookEndCol] = castlingRook;//move to new place
                     this.board[endRow][rookEndCol].timesMoved = 1;//update rook move count
                     this.board[startRow][rookStartCol] = null;//clear original
+                }
+                //update location for quick fetching
+                if (movingPieceColor === 'w'){
+                    this.whiteKingRow = endRow;
+                    this.whiteKingCol = endCol;
+                }else{
+                    this.blackKingRow = endRow;
+                    this.blackKingCol = endCol;
                 }
                 break;
             default:
@@ -328,9 +332,149 @@ class Chessboard{
         this.pushMove(startRow, startCol, endRow, endCol);
     }
 
-    isKingInCheck(){
-        //iterate thru and add enemies to list and current king
-        //using this.turn
+    isKingInCheck(turn){
+        return this.wouldKingBeInCheck(null, null, turn, this);
+    }
+    //row, col are null if we're not moving the king
+    static wouldKingBeInCheck(row, col, turn, chessboard){
+        let board = chessboard.board;
+        let kingRow = turn === 'w' ? chessboard.whiteKingRow : chessboard.blackKingRow;
+        let kingCol = turn === 'w' ? chessboard.whiteKingCol : chessboard.blackKingCol;
+        let king = board[kingRow][kingCol];
+        let otherKingRow = turn !== 'w' ? chessboard.whiteKingRow : chessboard.blackKingRow;
+        let otherKingCol = turn !== 'w' ? chessboard.whiteKingCol : chessboard.blackKingCol;
+        //move king to new location if row and col not null
+        if (row && col){
+            board[row][col] = king;
+            board[kingRow][kingCol] = null;
+        }else{
+            row = kingRow;
+            col = kingCol;
+        }
+        //check for pawn attackers
+        let forward = turn === 'b' ? 1 : -1;
+        let leftPawn = board[row - forward][col - 1];
+        let rightPawn =  board[row - forward][col + 1];
+        if (areCoordsWithinBounds(row - forward, col - 1) && leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){//check left
+            return true;
+        }
+        if (areCoordsWithinBounds(row - forward, col + 1) && rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){//check right
+            return true;
+        }
+        //check for knight attackers
+        let possibleKnightCoords = [ 
+            [row - 2, col - 1], [row - 2, col + 1], 
+            [row - 1, col - 2], [row - 1, col + 2], 
+            [row + 1, col - 2], [row + 1, col + 2],
+            [row + 2, col - 1], [row + 2, col + 1]
+        ];
+        for (let i = 0; i < possibleKnightCoords.length; i++){
+            let knightCoords = possibleKnightCoords[i];
+            let [nrow, ncol] = knightCoords;
+            let piece = board[nrow][ncol];
+            if (areCoordsWithinBounds(nrow, ncol) && piece && piece.type === 'n' && piece.color !== turn){
+                return true;
+            }
+        }
+        //check for king attacker
+        if ((row != otherKingRow || col != otherKingCol) && Math.abs(otherKingRow - row) < 2 && Math.abs(otherKingCol - col) < 2){
+            return true;
+        }
+        //check for rook/queen attackers
+        for (let i = row - 1; i > -1; i--){//up
+            let piece = board[i][col];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                    return true;
+                }
+                break;
+            }
+        }
+        for (let i = row + 1; i < NUM_ROWS; i++){//down
+            let piece = board[i][col];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){ 
+                    return true;
+                }
+                break;
+            }
+        }
+        for (let j = col - 1; j > -1; j--){//left
+            let piece = board[row][j];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                    return true;
+                }
+                break;
+            }
+        }
+        for (let j = col + 1; j < NUM_COLS; j++){//right
+            let piece = board[row][j];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                    return true;
+                }
+                break;
+            }
+        }
+        //check for bishop/queen attackers
+        let uri = row - 1;
+        let urj = col + 1;
+        while (uri > -1 && urj < NUM_COLS){//upper right
+            let piece = board[uri][urj];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){ 
+                    return true;    
+                }
+                break;
+            }
+            uri--;
+            urj++;
+        }
+        let dli = row + 1;
+        let dlj = col - 1;
+        while (dli < NUM_ROWS && dlj > -1){//down left
+            let piece = board[dli][dlj];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){ 
+                    return true;    
+                }
+                break;
+            }
+            dli++;
+            dlj--;
+        }
+        let uli = row - 1;
+        let ulj = col - 1;
+        while (uli > -1 && ulj > -1){//up left
+            let piece = board[uli][ulj];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){
+                    return true;
+                }
+                break;
+            }
+            uli--;
+            ulj--;
+        }
+        let dri = row + 1;
+        let drj = col + 1;
+        while (dri < NUM_ROWS && drj < NUM_COLS){//down right
+            let piece = board[dri][drj];
+            if (piece){//collided with a piece
+                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){
+                    return true;
+                }
+                break;
+            }
+            dri++;
+            drj++;
+        }
+        //revert move
+        if (row && col){
+            board[row][col] = null;
+            board[kingRow][kingCol] = king;
+        }
         return false;
     }
 
