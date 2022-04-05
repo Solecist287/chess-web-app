@@ -82,7 +82,7 @@ class Game extends React.Component {
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         //if move is in movemap
                         if (index in moveMap){
-                            if (!Chess.isKingInCheck(player, this.chess)){
+                            if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, this.chess)){
                                 this.chess.pushIndexMove(selected, index);
                                 this.setState({
                                     selected: null,

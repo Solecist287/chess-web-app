@@ -14,7 +14,7 @@ class Chess{
         this.lastMovedCol = chess ? chess.lastMovedCol : null;
         //copy chess board if provided, otherwise initialize normally
         if (chess){//deep copy of existing chess board if provided
-            this.board = structuredClone(chess.board);
+            this.board = JSON.parse(JSON.stringify(chess.board));
         }else{//else initiate board the normal way
             this.board = new Array(NUM_ROWS);
             //INITIALIZE BOARD w/ 2-d array and fill with nulls
@@ -342,7 +342,7 @@ class Chess{
     }
 
     //move piece, check if turn would be in check, then revert move
-    static wouldKingBeInCheck(startRow, startCol, endRow, endCol, turn, chess){
+    static wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess){
         //copy chess game to execute hypothetical moves
         let copiedChess = new Chess(chess);
         //execute hypothetical move
@@ -479,9 +479,15 @@ class Chess{
         return false;
     }
 
+    static wouldIndexMovePutKingInCheck(startIndex, endIndex, turn, chess){
+        let [startRow, startCol] = indexToCoords(startIndex);
+        let [endRow, endCol] = indexToCoords(endIndex);
+        return this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess);
+    }
+
     static isKingInCheck(turn, chess){
         let [row, col] = this.getKingCoords(turn, chess);
-        return this.wouldKingBeInCheck(row, col, row, col, turn, chess);
+        return this.wouldMovePutKingInCheck(row, col, row, col, turn, chess);
     }
 
     toString(){
