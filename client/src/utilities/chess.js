@@ -14,7 +14,8 @@ class Chess{
         this.lastMovedCol = chess ? chess.lastMovedCol : null;
         //copy chess board if provided, otherwise initialize normally
         if (chess){//deep copy of existing chess board if provided
-            this.board = JSON.parse(JSON.stringify(chess.board));
+            //this.board = JSON.parse(JSON.stringify(chess.board));
+            this.board = structuredClone(chess.board);
         }else{//else initiate board the normal way
             this.board = new Array(NUM_ROWS);
             //INITIALIZE BOARD w/ 2-d array and fill with nulls
@@ -341,36 +342,60 @@ class Chess{
         return null;
     }
 
-    //move piece, check if turn would be in check, then revert move
+    //move was already computed by chess engine or move generator
+    //makes deep copy of chess game, executes move and checks if king is in danger
+    //returns boolean
     static wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess){
+        //castling?
+        if (chess.board[startRow][startCol].type === 'k' && Math.abs(startCol - endCol) === 2){
+            //check if king already in check
+            if (this.isPositionInCheck(startRow, startCol, turn, chess)){
+                return true;
+            }
+            //check if in-between square is in check
+            let copiedChess = new Chess(chess);
+            let betweenCol = Math.min(startCol, endCol) + 1;
+            copiedChess.pushMove(startRow, startCol, endRow, betweenCol);
+            if (this.isPositionInCheck(endRow, betweenCol, turn, copiedChess)){
+                return true;
+            }
+        }
         //copy chess game to execute hypothetical moves
         let copiedChess = new Chess(chess);
-        //execute hypothetical move
         copiedChess.pushMove(startRow, startCol, endRow, endCol);
-        let board = copiedChess.board;
+        return this.isKingInCheck(turn, copiedChess);
+    }
+
+    static wouldIndexMovePutKingInCheck(startIndex, endIndex, turn, chess){
+        let [startRow, startCol] = indexToCoords(startIndex);
+        let [endRow, endCol] = indexToCoords(endIndex);
+        return this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess);
+    }
+
+    static isPositionInCheck(row, col, turn, chess){
+        let board = chess.board;
         //get kings
-        let [kingRow, kingCol] = this.getKingCoords(turn, chess);
         let [otherKingRow, otherKingCol] = this.getKingCoords(turn === 'w' ? 'b' : 'w', chess);
         //check for pawn attackers
         let forward = turn === 'b' ? 1 : -1;
-        if (areCoordsWithinBounds(kingRow - forward, kingCol - 1)){//check left "pawn"
-            let leftPawn = board[kingRow - forward][kingCol - 1];
+        if (areCoordsWithinBounds(row - forward, col - 1)){//check left "pawn"
+            let leftPawn = board[row - forward][col - 1];
             if (leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){
                 return true;
             }
         }
-        if (areCoordsWithinBounds(kingRow - forward, kingCol + 1)){//check right "pawn"
-            let rightPawn =  board[kingRow - forward][kingCol + 1];
+        if (areCoordsWithinBounds(row - forward, col + 1)){//check right "pawn"
+            let rightPawn =  board[row - forward][col + 1];
             if (rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){
                 return true;
             }
         }
         //check for knight attackers
         let possibleKnightCoords = [ 
-            [kingRow - 2, kingCol - 1], [kingRow - 2, kingCol + 1], 
-            [kingRow - 1, kingCol - 2], [kingRow - 1, kingCol + 2], 
-            [kingRow + 1, kingCol - 2], [kingRow + 1, kingCol + 2],
-            [kingRow + 2, kingCol - 1], [kingRow + 2, kingCol + 1]
+            [row - 2, col - 1], [row - 2, col + 1], 
+            [row - 1, col - 2], [row - 1, col + 2], 
+            [row + 1, col - 2], [row + 1, col + 2],
+            [row + 2, col - 1], [row + 2, col + 1]
         ];
         for (let i = 0; i < possibleKnightCoords.length; i++){
             let knightCoords = possibleKnightCoords[i];
@@ -383,12 +408,12 @@ class Chess{
             }
         }
         //check for king attacker
-        if ((kingRow !== otherKingRow || kingCol !== otherKingCol) && Math.abs(otherKingRow - kingRow) < 2 && Math.abs(otherKingCol - kingCol) < 2){
+        if (Math.abs(otherKingRow - row) < 2 && Math.abs(otherKingCol - col) < 2){
             return true;
         }
         //check for rook/queen attackers
-        for (let i = kingRow - 1; i > -1; i--){//up
-            let piece = board[i][kingCol];
+        for (let i = row - 1; i > -1; i--){//up
+            let piece = board[i][col];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -396,8 +421,8 @@ class Chess{
                 break;
             }
         }
-        for (let i = kingRow + 1; i < NUM_ROWS; i++){//down
-            let piece = board[i][kingCol];
+        for (let i = row + 1; i < NUM_ROWS; i++){//down
+            let piece = board[i][col];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){ 
                     return true;
@@ -405,8 +430,8 @@ class Chess{
                 break;
             }
         }
-        for (let j = kingCol - 1; j > -1; j--){//left
-            let piece = board[kingRow][j];
+        for (let j = col - 1; j > -1; j--){//left
+            let piece = board[row][j];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -414,8 +439,8 @@ class Chess{
                 break;
             }
         }
-        for (let j = kingCol + 1; j < NUM_COLS; j++){//right
-            let piece = board[kingRow][j];
+        for (let j = col + 1; j < NUM_COLS; j++){//right
+            let piece = board[row][j];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -424,8 +449,8 @@ class Chess{
             }
         }
         //check for bishop/queen attackers
-        let uri = kingRow - 1;
-        let urj = kingCol + 1;
+        let uri = row - 1;
+        let urj = col + 1;
         while (uri > -1 && urj < NUM_COLS){//upper right
             let piece = board[uri][urj];
             if (piece){//collided with a piece
@@ -437,8 +462,8 @@ class Chess{
             uri--;
             urj++;
         }
-        let dli = kingRow + 1;
-        let dlj = kingCol - 1;
+        let dli = row + 1;
+        let dlj = col - 1;
         while (dli < NUM_ROWS && dlj > -1){//down left
             let piece = board[dli][dlj];
             if (piece){//collided with a piece
@@ -450,8 +475,8 @@ class Chess{
             dli++;
             dlj--;
         }
-        let uli = kingRow - 1;
-        let ulj = kingCol - 1;
+        let uli = row - 1;
+        let ulj = col - 1;
         while (uli > -1 && ulj > -1){//up left
             let piece = board[uli][ulj];
             if (piece){//collided with a piece
@@ -463,8 +488,8 @@ class Chess{
             uli--;
             ulj--;
         }
-        let dri = kingRow + 1;
-        let drj = kingCol + 1;
+        let dri = row + 1;
+        let drj = col + 1;
         while (dri < NUM_ROWS && drj < NUM_COLS){//down right
             let piece = board[dri][drj];
             if (piece){//collided with a piece
@@ -479,15 +504,9 @@ class Chess{
         return false;
     }
 
-    static wouldIndexMovePutKingInCheck(startIndex, endIndex, turn, chess){
-        let [startRow, startCol] = indexToCoords(startIndex);
-        let [endRow, endCol] = indexToCoords(endIndex);
-        return this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess);
-    }
-
     static isKingInCheck(turn, chess){
-        let [row, col] = this.getKingCoords(turn, chess);
-        return this.wouldMovePutKingInCheck(row, col, row, col, turn, chess);
+        let [kingRow, kingCol] = this.getKingCoords(turn, chess);
+        return this.isPositionInCheck(kingRow, kingCol, turn, chess);
     }
 
     toString(){
