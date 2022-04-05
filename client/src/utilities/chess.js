@@ -8,54 +8,57 @@ class Piece{
     }
 }
 
-class Chessboard{
-    constructor(){
-        this.whiteKingRow = 7;
-        this.whiteKingCol = 4;
-        this.blackKingRow = 0;
-        this.blackKingCol = 4;
-        this.lastMovedRow = null;
-        this.lastMovedCol = null;
-        this.board = new Array(NUM_ROWS);
-        //INITIALIZE BOARD w/ 2-d array and fill with nulls
-        for (let i = 0; i < NUM_ROWS; i++){
-            this.board[i] = new Array(NUM_COLS).fill(null);
-        }
-        //add pawns
-        for (let j = 0; j < NUM_COLS; j++){//pawns
-            this.board[1][j] = new Piece('p', 'b'); //b pawns
-            this.board[6][j] = new Piece('p', 'w');//w pawns
-        }
-        //add rest of black pieces
-        this.board[0][0] = new Piece('r', 'b');
-        this.board[0][1] = new Piece('n', 'b');
-        this.board[0][2] = new Piece('b', 'b');
-        this.board[0][3] = new Piece('q', 'b');
-        this.board[0][4] = new Piece('k', 'b');
-        this.board[0][5] = new Piece('b', 'b');
-        this.board[0][6] = new Piece('n', 'b');
-        this.board[0][7] = new Piece('r', 'b');
-        //add rest of white pieces
-        this.board[7][0] = new Piece('r', 'w');
-        this.board[7][1] = new Piece('n', 'w');
-        this.board[7][2] = new Piece('b', 'w');
-        this.board[7][3] = new Piece('q', 'w');
-        this.board[7][4] = new Piece('k', 'w');
-        this.board[7][5] = new Piece('b', 'w');
-        this.board[7][6] = new Piece('n', 'w');
-        this.board[7][7] = new Piece('r', 'w');
+class Chess{
+    constructor(chess){
+        this.lastMovedRow = chess ? chess.lastMovedRow : null;
+        this.lastMovedCol = chess ? chess.lastMovedCol : null;
+        //copy chess board if provided, otherwise initialize normally
+        if (chess){//deep copy of existing chess board if provided
+            this.board = structuredClone(chess.board);
+        }else{//else initiate board the normal way
+            this.board = new Array(NUM_ROWS);
+            //INITIALIZE BOARD w/ 2-d array and fill with nulls
+            for (let i = 0; i < NUM_ROWS; i++){
+                this.board[i] = new Array(NUM_COLS).fill(null);
+            }
+            //add pawns
+            for (let j = 0; j < NUM_COLS; j++){//pawns
+                this.board[1][j] = new Piece('p', 'b'); //b pawns
+                this.board[6][j] = new Piece('p', 'w');//w pawns
+            }
+            //add rest of black pieces
+            this.board[0][0] = new Piece('r', 'b');
+            this.board[0][1] = new Piece('n', 'b');
+            this.board[0][2] = new Piece('b', 'b');
+            this.board[0][3] = new Piece('q', 'b');
+            this.board[0][4] = new Piece('k', 'b');
+            this.board[0][5] = new Piece('b', 'b');
+            this.board[0][6] = new Piece('n', 'b');
+            this.board[0][7] = new Piece('r', 'b');
+            //add rest of white pieces
+            this.board[7][0] = new Piece('r', 'w');
+            this.board[7][1] = new Piece('n', 'w');
+            this.board[7][2] = new Piece('b', 'w');
+            this.board[7][3] = new Piece('q', 'w');
+            this.board[7][4] = new Piece('k', 'w');
+            this.board[7][5] = new Piece('b', 'w');
+            this.board[7][6] = new Piece('n', 'w');
+            this.board[7][7] = new Piece('r', 'w');
 
-        //this.board[3][0] = new Piece('r', 'w');
-        //this.board[3][6] = new Piece('q', 'w');
-        //this.board[3][4] = new Piece('b', 'w');
-        //this.board[5][6] = new Piece('r', 'b');
+            //this.board[3][0] = new Piece('r', 'w');
+            //this.board[3][6] = new Piece('q', 'w');
+            //this.board[3][4] = new Piece('b', 'w');
+            //this.board[5][6] = new Piece('r', 'b');
+        }
+        
     }
+
     //current turn is assumed to be owner of clicked piece
-    static generateMoves(row, col, chessboard){
-        let board = chessboard.board;
+    static generateMoves(row, col, chess){
+        let board = chess.board;
         let selected = board[row][col];
-        let lastMovedRow = chessboard.lastMovedRow;
-        let lastMovedCol = chessboard.lastMovedCol;
+        let lastMovedRow = chess.lastMovedRow;
+        let lastMovedCol = chess.lastMovedCol;
 
         let moves2d = [];//start as pairs (row, col) => (index) 
         if (!selected){ return moves2d; }
@@ -261,24 +264,22 @@ class Chessboard{
         return moves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
     }
     
-    static generateMovesFromIndex(index, chessboard){
+    static generateMovesFromIndex(index, chess){
         let row = Math.trunc(index/NUM_ROWS);
         let col = index%NUM_COLS;
-        return this.generateMoves(row, col, chessboard);
+        return this.generateMoves(row, col, chess);
     }
-    static generateMovesFromSan(san, chessboard){//accepts a1, b3, etc.
+    static generateMovesFromSan(san, chess){//accepts a1, b3, etc.
         let [row, col] = sanToCoords(san);
-        return this.generateMoves(row, col, chessboard);
+        return this.generateMoves(row, col, chess);
     }
+
     //execute move, record last move, change turn?, flag if check then castling check
     //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
     pushMove(startRow, startCol, endRow, endCol){
         let movingPiece = this.board[startRow][startCol];
-        if (!movingPiece){ return; }
-        let movingPieceColor = movingPiece.color;
         let movingPieceTimesMoved = movingPiece.timesMoved;
         let dest = this.board[endRow][endCol];
-        if (!movingPiece){ return; }
         switch (movingPiece.type){
             case 'p':
                 //en passant: if pawn is attacking and no piece there
@@ -300,26 +301,21 @@ class Chessboard{
                     this.board[endRow][rookEndCol].timesMoved = 1;//update rook move count
                     this.board[startRow][rookStartCol] = null;//clear original
                 }
-                //update location for quick fetching
-                if (movingPieceColor === 'w'){
-                    this.whiteKingRow = endRow;
-                    this.whiteKingCol = endCol;
-                }else{
-                    this.blackKingRow = endRow;
-                    this.blackKingCol = endCol;
-                }
                 break;
             default:
                 break;
         }
+        
         //do base move for all pieces including above cases
         this.board[endRow][endCol] = movingPiece;//set to destination
-        this.board[endRow][endCol].timesMoved = movingPieceTimesMoved + 1;//increment move count
         this.board[startRow][startCol] = null;//clear original
+        
+        //set move flags
+        this.board[endRow][endCol].timesMoved = movingPieceTimesMoved + 1;//increment move count
         this.lastMovedRow = endRow;
         this.lastMovedCol = endCol;
     }
-
+    
     pushUciMove(move){//e.g. 'e5e7'
         let [startRow, startCol] = sanToCoords(move.substring(0,2));
         let [endRow, endCol] = sanToCoords(move.substring(2));
@@ -332,57 +328,67 @@ class Chessboard{
         this.pushMove(startRow, startCol, endRow, endCol);
     }
 
-    isKingInCheck(turn){
-        return this.wouldKingBeInCheck(null, null, turn, this);
-    }
-    //row, col are null if we're not moving the king
-    static wouldKingBeInCheck(row, col, turn, chessboard){
-        let board = chessboard.board;
-        let kingRow = turn === 'w' ? chessboard.whiteKingRow : chessboard.blackKingRow;
-        let kingCol = turn === 'w' ? chessboard.whiteKingCol : chessboard.blackKingCol;
-        let king = board[kingRow][kingCol];
-        let otherKingRow = turn !== 'w' ? chessboard.whiteKingRow : chessboard.blackKingRow;
-        let otherKingCol = turn !== 'w' ? chessboard.whiteKingCol : chessboard.blackKingCol;
-        //move king to new location if row and col not null
-        if (row && col){
-            board[row][col] = king;
-            board[kingRow][kingCol] = null;
-        }else{
-            row = kingRow;
-            col = kingCol;
+    static getKingCoords(color, chess){
+        let board = chess.board;
+        for (let i = 0; i < NUM_ROWS; i++){
+            for (let j = 0; j < NUM_COLS; j++){
+                let piece = board[i][j];
+                if (piece && piece.type === 'k' && piece.color === color){
+                    return [i, j];
+                }
+            }
         }
+        return null;
+    }
+
+    //move piece, check if turn would be in check, then revert move
+    static wouldKingBeInCheck(startRow, startCol, endRow, endCol, turn, chess){
+        //copy chess game to execute hypothetical moves
+        let copiedChess = new Chess(chess);
+        //execute hypothetical move
+        copiedChess.pushMove(startRow, startCol, endRow, endCol);
+        let board = copiedChess.board;
+        //get kings
+        let [kingRow, kingCol] = this.getKingCoords(turn, chess);
+        let [otherKingRow, otherKingCol] = this.getKingCoords(turn === 'w' ? 'b' : 'w', chess);
         //check for pawn attackers
         let forward = turn === 'b' ? 1 : -1;
-        let leftPawn = board[row - forward][col - 1];
-        let rightPawn =  board[row - forward][col + 1];
-        if (areCoordsWithinBounds(row - forward, col - 1) && leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){//check left
-            return true;
+        if (areCoordsWithinBounds(kingRow - forward, kingCol - 1)){//check left "pawn"
+            let leftPawn = board[kingRow - forward][kingCol - 1];
+            if (leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){
+                return true;
+            }
         }
-        if (areCoordsWithinBounds(row - forward, col + 1) && rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){//check right
-            return true;
+        if (areCoordsWithinBounds(kingRow - forward, kingCol + 1)){//check right "pawn"
+            let rightPawn =  board[kingRow - forward][kingCol + 1];
+            if (rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){
+                return true;
+            }
         }
         //check for knight attackers
         let possibleKnightCoords = [ 
-            [row - 2, col - 1], [row - 2, col + 1], 
-            [row - 1, col - 2], [row - 1, col + 2], 
-            [row + 1, col - 2], [row + 1, col + 2],
-            [row + 2, col - 1], [row + 2, col + 1]
+            [kingRow - 2, kingCol - 1], [kingRow - 2, kingCol + 1], 
+            [kingRow - 1, kingCol - 2], [kingRow - 1, kingCol + 2], 
+            [kingRow + 1, kingCol - 2], [kingRow + 1, kingCol + 2],
+            [kingRow + 2, kingCol - 1], [kingRow + 2, kingCol + 1]
         ];
         for (let i = 0; i < possibleKnightCoords.length; i++){
             let knightCoords = possibleKnightCoords[i];
             let [nrow, ncol] = knightCoords;
-            let piece = board[nrow][ncol];
-            if (areCoordsWithinBounds(nrow, ncol) && piece && piece.type === 'n' && piece.color !== turn){
-                return true;
+            if (areCoordsWithinBounds(nrow, ncol)){
+                let piece = board[nrow][ncol];
+                if (piece && piece.type === 'n' && piece.color !== turn){
+                    return true;
+                }
             }
         }
         //check for king attacker
-        if ((row != otherKingRow || col != otherKingCol) && Math.abs(otherKingRow - row) < 2 && Math.abs(otherKingCol - col) < 2){
+        if ((kingRow !== otherKingRow || kingCol !== otherKingCol) && Math.abs(otherKingRow - kingRow) < 2 && Math.abs(otherKingCol - kingCol) < 2){
             return true;
         }
         //check for rook/queen attackers
-        for (let i = row - 1; i > -1; i--){//up
-            let piece = board[i][col];
+        for (let i = kingRow - 1; i > -1; i--){//up
+            let piece = board[i][kingCol];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -390,8 +396,8 @@ class Chessboard{
                 break;
             }
         }
-        for (let i = row + 1; i < NUM_ROWS; i++){//down
-            let piece = board[i][col];
+        for (let i = kingRow + 1; i < NUM_ROWS; i++){//down
+            let piece = board[i][kingCol];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){ 
                     return true;
@@ -399,8 +405,8 @@ class Chessboard{
                 break;
             }
         }
-        for (let j = col - 1; j > -1; j--){//left
-            let piece = board[row][j];
+        for (let j = kingCol - 1; j > -1; j--){//left
+            let piece = board[kingRow][j];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -408,8 +414,8 @@ class Chessboard{
                 break;
             }
         }
-        for (let j = col + 1; j < NUM_COLS; j++){//right
-            let piece = board[row][j];
+        for (let j = kingCol + 1; j < NUM_COLS; j++){//right
+            let piece = board[kingRow][j];
             if (piece){//collided with a piece
                 if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
                     return true;
@@ -418,8 +424,8 @@ class Chessboard{
             }
         }
         //check for bishop/queen attackers
-        let uri = row - 1;
-        let urj = col + 1;
+        let uri = kingRow - 1;
+        let urj = kingCol + 1;
         while (uri > -1 && urj < NUM_COLS){//upper right
             let piece = board[uri][urj];
             if (piece){//collided with a piece
@@ -431,8 +437,8 @@ class Chessboard{
             uri--;
             urj++;
         }
-        let dli = row + 1;
-        let dlj = col - 1;
+        let dli = kingRow + 1;
+        let dlj = kingCol - 1;
         while (dli < NUM_ROWS && dlj > -1){//down left
             let piece = board[dli][dlj];
             if (piece){//collided with a piece
@@ -444,8 +450,8 @@ class Chessboard{
             dli++;
             dlj--;
         }
-        let uli = row - 1;
-        let ulj = col - 1;
+        let uli = kingRow - 1;
+        let ulj = kingCol - 1;
         while (uli > -1 && ulj > -1){//up left
             let piece = board[uli][ulj];
             if (piece){//collided with a piece
@@ -457,8 +463,8 @@ class Chessboard{
             uli--;
             ulj--;
         }
-        let dri = row + 1;
-        let drj = col + 1;
+        let dri = kingRow + 1;
+        let drj = kingCol + 1;
         while (dri < NUM_ROWS && drj < NUM_COLS){//down right
             let piece = board[dri][drj];
             if (piece){//collided with a piece
@@ -470,12 +476,12 @@ class Chessboard{
             dri++;
             drj++;
         }
-        //revert move
-        if (row && col){
-            board[row][col] = null;
-            board[kingRow][kingCol] = king;
-        }
         return false;
+    }
+
+    static isKingInCheck(turn, chess){
+        let [row, col] = this.getKingCoords(turn, chess);
+        return this.wouldKingBeInCheck(row, col, row, col, turn, chess);
     }
 
     toString(){
@@ -495,4 +501,4 @@ class Chessboard{
         return output;
     }
 }
-export default Chessboard;
+export default Chess;

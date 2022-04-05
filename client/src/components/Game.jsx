@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Chessboard from '../utilities/chessboard.js';
+import Chess from '../utilities/chess.js';
 import { EMPTY_SQUARE } from '../utilities/utilities.js';
 
 import Header from './Header.jsx';
@@ -19,9 +19,11 @@ class Game extends React.Component {
             boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
             moves: [],//algebraic move strings
+            message: '',
+            isGameOver: false,
         }
         //this.worker = new Worker('stockfish.js');
-        this.chessboard = new Chessboard();
+        this.chess = new Chess();
     }
 
     componentDidMount(){
@@ -33,7 +35,7 @@ class Game extends React.Component {
         //this.worker.postMessage('uci');
         //this.worker.postMessage('ucinewgame');
         //this.worker.postMessage('isready');
-        let boardString = this.chessboard.toString();
+        let boardString = this.chess.toString();
         this.setState({
             boards: [...boards, boardString],
             boardIndex: boardIndex + 1
@@ -59,6 +61,8 @@ class Game extends React.Component {
             boards, 
             boardIndex, 
             isBoardReversed,
+            message,
+            isGameOver,
         } = this.state;
 
         let turnColor = turn === 'w' ? 'White' : 'Black';
@@ -66,9 +70,10 @@ class Game extends React.Component {
         return(
             <div style={root}>
                 <div>{ `Player vs Stockfish! ${turnString}`}</div>
+                <div>{message}</div>
                 <Header />
                 <Board
-                    disabled={player !== turn}
+                    disabled={player !== turn || isGameOver}
                     selected={selected}
                     moveMap={moveMap}
                     onSelection={(index, symbol) => {
@@ -77,20 +82,27 @@ class Game extends React.Component {
                         let isSymbolUpperCase = symbol === symbol.toUpperCase();
                         //if move is in movemap
                         if (index in moveMap){
-                            this.chessboard.pushIndexMove(selected, index);
-                            this.setState({
-                                selected: null,
-                                turn: turn === 'w' ? 'b': 'w',
-                                player: player === 'w' ? 'b' : 'w',//remove later
-                                moveMap: {},
-                                boards: [...boards, this.chessboard.toString()],
-                                boardIndex: boardIndex + 1
-                            });
+                            if (!Chess.isKingInCheck(player, this.chess)){
+                                this.chess.pushIndexMove(selected, index);
+                                this.setState({
+                                    selected: null,
+                                    turn: turn === 'w' ? 'b': 'w',
+                                    player: player === 'w' ? 'b' : 'w',//remove later
+                                    moveMap: {},
+                                    boards: [...boards, this.chess.toString()],
+                                    boardIndex: boardIndex + 1,
+                                    message: ''
+                                });
+                            }else{//king in check!
+                                this.setState({
+                                    message: 'King in check!'
+                                });
+                            }
                         }
                         //only select square where it has a piece you own
                         else if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
                             //generate possible moves for movemap
-                            let possibleMoves = Chessboard.generateMovesFromIndex(index, this.chessboard);
+                            let possibleMoves = Chess.generateMovesFromIndex(index, this.chess);
                             let moveMap = possibleMoves.reduce((map, move) => {
                                 map[move] = move;
                                 return map;
