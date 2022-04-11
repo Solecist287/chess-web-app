@@ -262,17 +262,17 @@ class Chess{
             default:
                 break;
         }
-        return moves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
+        return moves2d;
     }
     
     static generateMovesFromIndex(index, chess){
         let row = Math.trunc(index/NUM_ROWS);
         let col = index%NUM_COLS;
-        return this.generateMoves(row, col, chess);
+        return this.generateMoves(row, col, chess).map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));;
     }
     static generateMovesFromSan(san, chess){//accepts a1, b3, etc.
         let [row, col] = sanToCoords(san);
-        return this.generateMoves(row, col, chess);
+        return this.generateMoves(row, col, chess).map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));;
     }
 
     //execute move, record last move, change turn?, flag if check then castling check
@@ -340,36 +340,6 @@ class Chess{
             }
         }
         return null;
-    }
-
-    //move was already computed by chess engine or move generator
-    //makes deep copy of chess game, executes move and checks if king is in danger
-    //returns boolean
-    static wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess){
-        //castling?
-        if (chess.board[startRow][startCol].type === 'k' && Math.abs(startCol - endCol) === 2){
-            //check if king already in check
-            if (this.isPositionInCheck(startRow, startCol, turn, chess)){
-                return true;
-            }
-            //check if in-between square is in check
-            let copiedChess = new Chess(chess);
-            let betweenCol = Math.min(startCol, endCol) + 1;
-            copiedChess.pushMove(startRow, startCol, endRow, betweenCol);
-            if (this.isPositionInCheck(endRow, betweenCol, turn, copiedChess)){
-                return true;
-            }
-        }
-        //copy chess game to execute hypothetical moves
-        let copiedChess = new Chess(chess);
-        copiedChess.pushMove(startRow, startCol, endRow, endCol);
-        return this.isKingInCheck(turn, copiedChess);
-    }
-
-    static wouldIndexMovePutKingInCheck(startIndex, endIndex, turn, chess){
-        let [startRow, startCol] = indexToCoords(startIndex);
-        let [endRow, endCol] = indexToCoords(endIndex);
-        return this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess);
     }
 
     static isPositionInCheck(row, col, turn, chess){
@@ -507,6 +477,58 @@ class Chess{
     static isKingInCheck(turn, chess){
         let [kingRow, kingCol] = this.getKingCoords(turn, chess);
         return this.isPositionInCheck(kingRow, kingCol, turn, chess);
+    }
+
+    //move was already computed by chess engine or move generator
+    //makes deep copy of chess game, executes move and checks if king is in danger
+    //returns boolean
+    static wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess){
+        //castling?
+        if (chess.board[startRow][startCol].type === 'k' && Math.abs(startCol - endCol) === 2){
+            //check if king already in check
+            if (this.isPositionInCheck(startRow, startCol, turn, chess)){
+                return true;
+            }
+            //check if in-between square is in check
+            let copiedChess = new Chess(chess);
+            let betweenCol = Math.min(startCol, endCol) + 1;
+            copiedChess.pushMove(startRow, startCol, endRow, betweenCol);
+            if (this.isPositionInCheck(endRow, betweenCol, turn, copiedChess)){
+                return true;
+            }
+        }
+        //copy chess game to execute hypothetical moves
+        let copiedChess = new Chess(chess);
+        copiedChess.pushMove(startRow, startCol, endRow, endCol);
+        return this.isKingInCheck(turn, copiedChess);
+    }
+
+    static wouldIndexMovePutKingInCheck(startIndex, endIndex, turn, chess){
+        let [startRow, startCol] = indexToCoords(startIndex);
+        let [endRow, endCol] = indexToCoords(endIndex);
+        return this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess);
+    }
+
+    //purpose: see whether there are moves that do not put own king in check
+    //true: continue, false: check/stalemate 
+    static hasValidMoves(turn, chess){
+        let board = chess.board;
+        for (let startRow = 0; startRow < NUM_ROWS; startRow++){
+            for (let startCol = 0; startCol < NUM_COLS; startCol++){
+                let piece = board[startRow][startCol];
+                if (piece && piece.color === turn){
+                    let moves2d = this.generateMoves(startRow, startCol, chess);
+                    for (let i = 0; i < moves2d.length; i++){
+                        let [endRow, endCol] = moves2d[i];
+                        //if move doesn't put king in check, then valid move
+                        if (!this.wouldMovePutKingInCheck(startRow, startCol, endRow, endCol, turn, chess)){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     toString(){
