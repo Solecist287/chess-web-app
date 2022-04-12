@@ -385,7 +385,7 @@ class Chess{
         for (let i = row - 1; i > -1; i--){//up
             let piece = board[i][col];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
                     return true;
                 }
                 break;
@@ -394,7 +394,7 @@ class Chess{
         for (let i = row + 1; i < NUM_ROWS; i++){//down
             let piece = board[i][col];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){ 
+                if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
                     return true;
                 }
                 break;
@@ -403,7 +403,7 @@ class Chess{
         for (let j = col - 1; j > -1; j--){//left
             let piece = board[row][j];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
                     return true;
                 }
                 break;
@@ -412,7 +412,7 @@ class Chess{
         for (let j = col + 1; j < NUM_COLS; j++){//right
             let piece = board[row][j];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'r' || piece.type !== 'q')){
+                if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
                     return true;
                 }
                 break;
@@ -424,7 +424,7 @@ class Chess{
         while (uri > -1 && urj < NUM_COLS){//upper right
             let piece = board[uri][urj];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){ 
+                if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
                     return true;    
                 }
                 break;
@@ -437,7 +437,7 @@ class Chess{
         while (dli < NUM_ROWS && dlj > -1){//down left
             let piece = board[dli][dlj];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){ 
+                if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
                     return true;    
                 }
                 break;
@@ -450,7 +450,7 @@ class Chess{
         while (uli > -1 && ulj > -1){//up left
             let piece = board[uli][ulj];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){
+                if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
                     return true;
                 }
                 break;
@@ -463,7 +463,7 @@ class Chess{
         while (dri < NUM_ROWS && drj < NUM_COLS){//down right
             let piece = board[dri][drj];
             if (piece){//collided with a piece
-                if (piece.color !== turn && (piece.type !== 'b' || piece.type !== 'q')){
+                if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
                     return true;
                 }
                 break;

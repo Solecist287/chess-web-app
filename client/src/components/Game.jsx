@@ -45,6 +45,32 @@ class Game extends React.Component {
     componentWillUnmount(){
         //this.worker.terminate();
     }
+    //increment/reset state, set game state flags for next turn
+    concludeTurn = () => {
+        const { turn, player, boards, } = this.state;
+        let nextTurn = turn === 'w' ? 'b' : 'w';
+        let newState = {
+            selected: null,
+            turn: nextTurn,
+            player: player === 'w' ? 'b' : 'w',//remove later
+            moveMap: {},
+            boards: [...boards, this.chess.toString()],
+            boardIndex: boards.length,
+        };
+        
+        let isKingInCheck = Chess.isKingInCheck(nextTurn, this.chess);
+        let currentColor = turn === 'w' ? 'White' : 'Black';
+        let nextColor = nextTurn === 'w' ? 'White' : 'Black';
+        if (Chess.hasValidMoves(nextTurn, this.chess)){
+            newState['isGameOver'] = false;
+            newState['message'] = isKingInCheck ? `${nextColor} in check!` : '';
+        }else{//gameover: either checkmate or stalemate
+            newState['message'] = isKingInCheck ? `${currentColor} wins!` : 'Stalemate';
+            newState['isGameover'] = true;
+        }
+        //console.log(newState);
+        this.setState(newState);
+    }
 
     render(){
         const root = {
@@ -84,18 +110,10 @@ class Game extends React.Component {
                         if (index in moveMap){
                             if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, this.chess)){
                                 this.chess.pushIndexMove(selected, index);
-                                this.setState({
-                                    selected: null,
-                                    turn: turn === 'w' ? 'b': 'w',
-                                    player: player === 'w' ? 'b' : 'w',//remove later
-                                    moveMap: {},
-                                    boards: [...boards, this.chess.toString()],
-                                    boardIndex: boardIndex + 1,
-                                    message: ''
-                                });
+                                this.concludeTurn();
                             }else{//king in check!
                                 this.setState({
-                                    message: 'King in check!'
+                                    message: 'Cannot put your king in check!'
                                 });
                             }
                         }
