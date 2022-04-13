@@ -18,6 +18,7 @@ class Game extends React.Component {
             moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
             boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
+            fullMoveClock: 1,
             message: '',
             isGameOver: false,
         }
@@ -45,14 +46,16 @@ class Game extends React.Component {
         this.worker.terminate();
     }
 
-    sendMoveToEngine(turn){
-        let fen = Chess.generateFen(turn, this.chess);
+    sendMoveToEngine = (nextFullMoveClock, nextTurn) => {
+        const { fullMoveClock, } = this.state;
+        let fen = Chess.generateFen(nextFullMoveClock, nextTurn, this.chess);
         //this.worker.postMessage(`position fen ${fen}`);
+        //this.worker.postMessage('go infinite');
     }
 
     //increment/reset state, set game state flags for next turn
     concludeTurn = () => {
-        const { turn, player, boards, } = this.state;
+        const { turn, player, boards, fullMoveClock, } = this.state;
         let nextTurn = turn === 'w' ? 'b' : 'w';
         let newState = {
             selected: null,
@@ -60,9 +63,12 @@ class Game extends React.Component {
             player: player === 'w' ? 'b' : 'w',//remove later
             moveMap: {},
             boards: [...boards, this.chess.toString()],
-            boardIndex: boards.length,
+            boardIndex: boards.length
         };
-        
+        //increment full move clock when black concludes turn
+        if (turn === 'b'){
+            newState['fullMoveClock'] = fullMoveClock + 1;
+        }
         let isKingInCheck = Chess.isKingInCheck(nextTurn, this.chess);
         let currentColor = turn === 'w' ? 'White' : 'Black';
         let nextColor = nextTurn === 'w' ? 'White' : 'Black';
@@ -97,6 +103,7 @@ class Game extends React.Component {
         const { 
             selected,
             turn,
+            fullMoveClock,
             player,
             moveMap,
             boards, 
@@ -126,7 +133,9 @@ class Game extends React.Component {
                             if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, this.chess)){
                                 this.chess.pushIndexMove(selected, index);
                                 this.concludeTurn();
-                                this.sendMoveToEngine(turn);
+                                let nextTurn = turn === 'w' ? 'b' : 'w';
+                                let nextFullMoveClock = turn === 'b' ? fullMoveClock + 1 : fullMoveClock;
+                                this.sendMoveToEngine(nextFullMoveClock, nextTurn);
                             }else{//king in check!
                                 this.setState({
                                     message: 'Cannot put your king in check!'

@@ -1,4 +1,4 @@
-import { sanToCoords, coordsToIndex, indexToCoords, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities.js';
+import { sanToCoords, coordsToIndex, indexToCoords, coordsToSan, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -531,8 +531,10 @@ class Chess{
         return false;
     }
 
-    static generateFen(turn, chess){
+    static generateFen(fullMoveClock, turn, chess){
         let board = chess.board;
+        let lastMovedRow = chess.lastMovedRow;
+        let lastMovedCol = chess.lastMovedCol;
         //turn board to fen string
         let fenBoardArr = [];
         let count = 0;//count consecutive empty squares
@@ -557,7 +559,48 @@ class Chess{
             }
             fenBoardArr.push(fenRow);
         }
-        console.log(fenBoardArr.join('/'));
+        let castlingRights = '';
+        //white castling rights
+        let whiteKing = board[7][4];
+        if (whiteKing && whiteKing.type === 'k' && whiteKing.color === 'w' && whiteKing.timesMoved === 0){
+            let rightWhiteRook = board[7][7];
+            if (rightWhiteRook && rightWhiteRook.type === 'r' && rightWhiteRook.color === 'w' && rightWhiteRook.timesMoved === 0){
+                castlingRights += 'K';
+            }
+            let leftWhiteRook = board[7][0];
+            if (leftWhiteRook && leftWhiteRook.type === 'r' && leftWhiteRook.color === 'w' && leftWhiteRook.timesMoved === 0){
+                castlingRights += 'Q';
+            }
+        }else{
+            castlingRights += '--';
+        }
+        //black castling rights
+        let blackKing = board[0][4];
+        if (blackKing && blackKing.type === 'k' && blackKing.color === 'b' && blackKing.timesMoved === 0){
+            let rightBlackRook = board[0][7];
+            if (rightBlackRook && rightBlackRook.type === 'r' && rightBlackRook.color === 'b' && rightBlackRook.timesMoved === 0){
+                castlingRights += 'k';
+            }
+            let leftBlackRook = board[0][0];
+            if (leftBlackRook && leftBlackRook.type === 'r' && leftBlackRook.color === 'b' && leftBlackRook.timesMoved === 0){
+                castlingRights += 'q';
+            }
+        }else{
+            castlingRights += '--';
+        }
+        //en passant square
+        let en = '-';
+        let lastMovedPiece = board[lastMovedRow][lastMovedCol];
+        console.log(`${turn} (${lastMovedRow},${lastMovedCol})`)
+        if (lastMovedPiece && lastMovedPiece.color !== turn && lastMovedPiece.type === 'p' && //enemy pawn
+            lastMovedPiece.timesMoved === 1 && 
+            ((lastMovedPiece.color === 'w' && lastMovedRow === 4) || (lastMovedPiece.color === 'b' && lastMovedRow === 3))
+        ){
+            en = coordsToSan(lastMovedRow, lastMovedCol);
+        }
+        //half move clock
+        let halfMoveClock = 0;
+        console.log(`${fenBoardArr.join('/')} ${turn} ${castlingRights} ${en} ${halfMoveClock} ${fullMoveClock}`);
     }
 
     toString(){

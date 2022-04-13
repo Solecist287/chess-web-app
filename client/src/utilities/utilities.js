@@ -29,6 +29,10 @@ export function indexToCoords(index){
     return [row, col];
 }
 
+export function coordsToSan(row, col){
+    return `${FILES[col]}${RANKS[row]}`;
+}
+
 //checks if row and col are within bounds of the board
 export function areCoordsWithinBounds(row, col){
     return row < NUM_ROWS && row > -1 && col < NUM_COLS && col > -1;
