@@ -34,25 +34,13 @@ export function areCoordsWithinBounds(row, col){
     return row < NUM_ROWS && row > -1 && col < NUM_COLS && col > -1;
 }
 
-export const fenCharMap = {
-    'b': 'b',
-    'B': 'B',
-    'k': 'k',
-    'K': 'K',
-    'n': 'n',
-    'N': 'N',
-    'p': 'p',
-    'P': 'P',
-    'q': 'q',
-    'Q': 'Q',
-    'r': 'r',
-    'R': 'R',
-    '1': 'x',
-    '2': 'xx',
-    '3': 'xxx',
-    '4': 'xxxx',
-    '5': 'xxxxx',
-    '6': 'xxxxxx',
-    '7': 'xxxxxxx',
-    '8': 'xxxxxxxx'    
+export function pieceToChar(piece){
+    if (!piece){
+        return EMPTY_SQUARE;
+    }
+    let char = piece.type;
+    if (piece.color === 'w'){
+        return char.toUpperCase();
+    }
+    return char;
 }

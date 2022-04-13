@@ -1,4 +1,4 @@
-import { sanToCoords, coordsToIndex, indexToCoords, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE } from './utilities.js';
+import { sanToCoords, coordsToIndex, indexToCoords, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities.js';
 
 class Piece{
     constructor(type, color){
@@ -531,18 +531,41 @@ class Chess{
         return false;
     }
 
+    static generateFen(turn, chess){
+        let board = chess.board;
+        //turn board to fen string
+        let fenBoardArr = [];
+        let count = 0;//count consecutive empty squares
+        for (let i = 0; i < NUM_ROWS; i++){
+            let fenRow = '';
+            count = 0;
+            for (let j = 0; j < NUM_COLS; j++){
+                let piece = board[i][j];
+                let pieceChar = pieceToChar(piece);
+                if (pieceChar === EMPTY_SQUARE){
+                    count++;
+                }else{
+                    if (count > 0){
+                        fenRow += count;
+                        count = 0;
+                    }
+                    fenRow += pieceChar;
+                }
+            }
+            if (count > 0){
+                fenRow += count;
+            }
+            fenBoardArr.push(fenRow);
+        }
+        console.log(fenBoardArr.join('/'));
+    }
+
     toString(){
         let output = '';
         for (let i = 0; i < NUM_ROWS; i++){
             for (let j = 0; j < NUM_COLS; j++){
                 let piece = this.board[i][j];
-                if (piece){
-                    let color = piece.color;
-                    let type = piece.type;
-                    output += color === 'w' ? type.toUpperCase() : type;
-                }else{
-                    output += EMPTY_SQUARE;
-                }
+                output += pieceToChar(piece);
             }
         }
         return output;

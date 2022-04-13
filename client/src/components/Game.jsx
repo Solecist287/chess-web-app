@@ -18,33 +18,38 @@ class Game extends React.Component {
             moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
             boards: [],//list of board strings i.e. arr[64]
             boardIndex: -1,//which board in boards[] to view when looking at prev moves
-            moves: [],//algebraic move strings
             message: '',
             isGameOver: false,
         }
-        //this.worker = new Worker('stockfish.js');
+        this.worker = new Worker('stockfish.js');
         this.chess = new Chess();
     }
 
     componentDidMount(){
         const { boards, boardIndex, } = this.state;
 
-        //this.worker.onmessage = function(oEvent) {
-        //    console.log('Worker said : ' + oEvent.data);
-        //};
-        //this.worker.postMessage('uci');
-        //this.worker.postMessage('ucinewgame');
-        //this.worker.postMessage('isready');
-        let boardString = this.chess.toString();
+        this.worker.onmessage = function(oEvent) {
+            console.log('Worker said : ' + oEvent.data);
+        };
+        this.worker.postMessage('uci');
+        this.worker.postMessage('ucinewgame');
+        this.worker.postMessage('isready');
+        
         this.setState({
-            boards: [...boards, boardString],
-            boardIndex: boardIndex + 1
+            boards: [this.chess.toString()],
+            boardIndex: 0
         });
     }
 
     componentWillUnmount(){
-        //this.worker.terminate();
+        this.worker.terminate();
     }
+
+    sendMoveToEngine(turn){
+        let fen = Chess.generateFen(turn, this.chess);
+        //this.worker.postMessage(`position fen ${fen}`);
+    }
+
     //increment/reset state, set game state flags for next turn
     concludeTurn = () => {
         const { turn, player, boards, } = this.state;
@@ -72,12 +77,22 @@ class Game extends React.Component {
         this.setState(newState);
     }
 
+    travelToBoard = (step) => {
+        this.setState({boardIndex: step, moveMap: {}, selected: null});
+    }
+
     render(){
         const root = {
             maxHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
         };
+        const buttonContainer = {
+            display: 'flex',
+            flexDirection: 'row',
+            width: '80vh',
+            justifyContent: 'space-between',
+        }
 
         const { 
             selected,
@@ -111,6 +126,7 @@ class Game extends React.Component {
                             if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, this.chess)){
                                 this.chess.pushIndexMove(selected, index);
                                 this.concludeTurn();
+                                this.sendMoveToEngine(turn);
                             }else{//king in check!
                                 this.setState({
                                     message: 'Cannot put your king in check!'
@@ -135,11 +151,23 @@ class Game extends React.Component {
                     board={boards[boardIndex]}
                     isReversed={isBoardReversed}
                 />
-                {
-                    <button onClick={() => this.setState({isBoardReversed: !this.state.isBoardReversed})}>
-                        flip!
+                <div style={buttonContainer}>
+                    <button
+                        disabled={boardIndex <= 0} 
+                        onClick={() => this.travelToBoard(boardIndex - 1)}
+                    >
+                        prev
                     </button>
-                    }
+                    <button onClick={() => this.setState({isBoardReversed: !isBoardReversed})}>
+                        flip
+                    </button>
+                    <button
+                        disabled={boardIndex >= boards.length - 1} 
+                        onClick={() => this.travelToBoard(boardIndex + 1)}
+                    >
+                        next
+                    </button>
+                </div>
                 <Footer />
             </div>
         );
