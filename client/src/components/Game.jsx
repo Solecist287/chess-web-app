@@ -49,8 +49,8 @@ class Game extends React.Component {
     sendMoveToEngine = (nextFullMoveClock, nextTurn) => {
         const { fullMoveClock, } = this.state;
         let fen = Chess.generateFen(nextFullMoveClock, nextTurn, this.chess);
-        //this.worker.postMessage(`position fen ${fen}`);
-        //this.worker.postMessage('go infinite');
+        this.worker.postMessage(`position fen ${fen}`);
+        this.worker.postMessage('go infinite');
     }
 
     //increment/reset state, set game state flags for next turn
@@ -79,7 +79,6 @@ class Game extends React.Component {
             newState['message'] = isKingInCheck ? `${currentColor} wins!` : 'Stalemate';
             newState['isGameover'] = true;
         }
-        //console.log(newState);
         this.setState(newState);
     }
 

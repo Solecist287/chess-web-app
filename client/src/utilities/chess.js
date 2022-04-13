@@ -591,7 +591,6 @@ class Chess{
         //en passant square
         let en = '-';
         let lastMovedPiece = board[lastMovedRow][lastMovedCol];
-        console.log(`${turn} (${lastMovedRow},${lastMovedCol})`)
         if (lastMovedPiece && lastMovedPiece.color !== turn && lastMovedPiece.type === 'p' && //enemy pawn
             lastMovedPiece.timesMoved === 1 && 
             ((lastMovedPiece.color === 'w' && lastMovedRow === 4) || (lastMovedPiece.color === 'b' && lastMovedRow === 3))
@@ -600,7 +599,8 @@ class Chess{
         }
         //half move clock
         let halfMoveClock = 0;
-        console.log(`${fenBoardArr.join('/')} ${turn} ${castlingRights} ${en} ${halfMoveClock} ${fullMoveClock}`);
+        //console.log(`${fenBoardArr.join('/')} ${turn} ${castlingRights} ${en} ${halfMoveClock} ${fullMoveClock}`);
+        return `${fenBoardArr.join('/')} ${turn} ${castlingRights} ${en} ${halfMoveClock} ${fullMoveClock}`;
     }
 
     toString(){
