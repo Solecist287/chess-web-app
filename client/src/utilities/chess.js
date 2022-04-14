@@ -54,6 +54,96 @@ class Chess{
         
     }
 
+    static generateMovesForBishop(row, col, color, board){
+        let moves2d = [];
+        let uri = row - 1;
+        let urj = col + 1;
+        while (uri > -1 && urj < NUM_COLS){//upper right
+            let piece = board[uri][urj];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([uri, urj]); }
+                break;
+            }
+            moves2d.push([uri, urj]);
+            uri--;
+            urj++;
+        }
+        let dli = row + 1;
+        let dlj = col - 1;
+        while (dli < NUM_ROWS && dlj > -1){//down left
+            let piece = board[dli][dlj];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([dli, dlj]); }
+                break;
+            }
+            moves2d.push([dli, dlj]);
+            dli++;
+            dlj--;
+        }
+        let uli = row - 1;
+        let ulj = col - 1;
+        while (uli > -1 && ulj > -1){//up left
+            let piece = board[uli][ulj];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([uli, ulj]); }
+                break;
+            }
+            moves2d.push([uli, ulj]);
+            uli--;
+            ulj--;
+        }
+        let dri = row + 1;
+        let drj = col + 1;
+        while (dri < NUM_ROWS && drj < NUM_COLS){//down right
+            let piece = board[dri][drj];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([dri, drj]); }
+                break;
+            }
+            moves2d.push([dri, drj]);
+            dri++;
+            drj++;
+        }
+        return moves2d;
+    }
+
+    static generateMovesForRook(row, col, color, board){
+        let moves2d = [];
+        for (let i = row - 1; i > -1; i--){//up
+            let piece = board[i][col];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([i, col]); }
+                break;
+            }
+            moves2d.push([i, col]);
+        }
+        for (let i = row + 1; i < NUM_ROWS; i++){//down
+            let piece = board[i][col];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([i, col]); }
+                break;
+            }
+            moves2d.push([i, col]);
+        }
+        for (let j = col - 1; j > -1; j--){//left
+            let piece = board[row][j];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([row, j]); }
+                break;
+            }
+            moves2d.push([row, j]);
+        }
+        for (let j = col + 1; j < NUM_COLS; j++){//right
+            let piece = board[row][j];
+            if (piece){//collided with a piece
+                if (piece.color !== color){ moves2d.push([row, j]); }
+                break;
+            }
+            moves2d.push([row, j]);
+        }
+        return moves2d;
+    }
+
     //current turn is assumed to be owner of clicked piece
     static generateMoves(row, col, chess){
         let board = chess.board;
@@ -175,90 +265,11 @@ class Chess{
                 }
                 break;
             case 'q'://queen poses as rook and bishop
+                return [...this.generateMovesForBishop(row, col, color, board), ...this.generateMovesForRook(row, col, color, board)];
             case 'r'://rook
-                for (let i = row - 1; i > -1; i--){//up
-                    let piece = board[i][col];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([i, col]); }
-                        break;
-                    }
-                    moves2d.push([i, col]);
-                }
-                for (let i = row + 1; i < NUM_ROWS; i++){//down
-                    let piece = board[i][col];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([i, col]); }
-                        break;
-                    }
-                    moves2d.push([i, col]);
-                }
-                for (let j = col - 1; j > -1; j--){//left
-                    let piece = board[row][j];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([row, j]); }
-                        break;
-                    }
-                    moves2d.push([row, j]);
-                }
-                for (let j = col + 1; j < NUM_COLS; j++){//right
-                    let piece = board[row][j];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([row, j]); }
-                        break;
-                    }
-                    moves2d.push([row, j]);
-                }
-                if (selected.type !== 'q'){ break; }
+                return this.generateMovesForRook(row, col, color, board);
             case 'b'://bishop
-                let uri = row - 1;
-                let urj = col + 1;
-                while (uri > -1 && urj < NUM_COLS){//upper right
-                    let piece = board[uri][urj];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([uri, urj]); }
-                        break;
-                    }
-                    moves2d.push([uri, urj]);
-                    uri--;
-                    urj++;
-                }
-                let dli = row + 1;
-                let dlj = col - 1;
-                while (dli < NUM_ROWS && dlj > -1){//down left
-                    let piece = board[dli][dlj];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([dli, dlj]); }
-                        break;
-                    }
-                    moves2d.push([dli, dlj]);
-                    dli++;
-                    dlj--;
-                }
-                let uli = row - 1;
-                let ulj = col - 1;
-                while (uli > -1 && ulj > -1){//up left
-                    let piece = board[uli][ulj];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([uli, ulj]); }
-                        break;
-                    }
-                    moves2d.push([uli, ulj]);
-                    uli--;
-                    ulj--;
-                }
-                let dri = row + 1;
-                let drj = col + 1;
-                while (dri < NUM_ROWS && drj < NUM_COLS){//down right
-                    let piece = board[dri][drj];
-                    if (piece){//collided with a piece
-                        if (piece.color !== color){ moves2d.push([dri, drj]); }
-                        break;
-                    }
-                    moves2d.push([dri, drj]);
-                    dri++;
-                    drj++;
-                }
-                if (selected.type !== 'q'){ break; }
+                return this.generateMovesForBishop(row, col, color, board);
             default:
                 break;
         }
@@ -268,10 +279,6 @@ class Chess{
     static generateMovesFromIndex(index, chess){
         let row = Math.trunc(index/NUM_ROWS);
         let col = index%NUM_COLS;
-        return this.generateMoves(row, col, chess).map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));;
-    }
-    static generateMovesFromSan(san, chess){//accepts a1, b3, etc.
-        let [row, col] = sanToCoords(san);
         return this.generateMoves(row, col, chess).map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));;
     }
 
@@ -318,8 +325,8 @@ class Chess{
     }
     
     pushUciMove(move){//e.g. 'e5e7'
-        let [startRow, startCol] = sanToCoords(move.substring(0,2));
-        let [endRow, endCol] = sanToCoords(move.substring(2));
+        let [startRow, startCol] = sanToCoords(String(move).substring(0,2));
+        let [endRow, endCol] = sanToCoords(String(move).substring(2));
         this.pushMove(startRow, startCol, endRow, endCol);
     }
 

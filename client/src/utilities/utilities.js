@@ -6,7 +6,7 @@ export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (l
 
 //algebraic notation to [row, col]
 export function sanToCoords(san){
-    let row = Math.abs(Number(san[1]) - NUM_ROWS);
+    let row = Math.abs(Number(san.charAt(1)) - NUM_ROWS);
     let col = Math.abs(san.charCodeAt(0) - 97);
     return [row, col];
 }

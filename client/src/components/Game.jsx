@@ -10,57 +10,65 @@ import Footer from './Footer.jsx';
 class Game extends React.Component {
     constructor(props){
         super(props);
+        this.worker = new Worker('stockfish.js');
+        this.chess = new Chess();
         this.state = {
             turn: 'w',
             player: 'w',
             selected: null,
             isBoardReversed: false,
             moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
-            boards: [],//list of board strings i.e. arr[64]
-            boardIndex: -1,//which board in boards[] to view when looking at prev moves
+            boards: [this.chess.toString()],//list of board strings i.e. arr[64]
+            boardIndex: 0,//which board in boards[] to view when looking at prev moves
             fullMoveClock: 1,
             message: '',
             isGameOver: false,
         }
-        this.worker = new Worker('stockfish.js');
-        this.chess = new Chess();
     }
 
     componentDidMount(){
-        const { boards, boardIndex, } = this.state;
+        window.addEventListener('message', this.relayEngineResponse);
 
         this.worker.onmessage = function(oEvent) {
             console.log('Worker said : ' + oEvent.data);
+            let tokens = oEvent.data.split(' ');
+            if (tokens[0] === 'bestmove'){
+                postMessage(tokens[1]);
+            }
         };
         this.worker.postMessage('uci');
         this.worker.postMessage('ucinewgame');
         this.worker.postMessage('isready');
-        
-        this.setState({
-            boards: [this.chess.toString()],
-            boardIndex: 0
-        });
     }
 
     componentWillUnmount(){
+        window.removeEventListener('message', this.relayEngineResponse);
         this.worker.terminate();
     }
 
+    relayEngineResponse = (oEvent) => {
+        //console.log(oEvent.data);
+        //console.log(typeof oEvent.data);
+        if (typeof oEvent.data === 'string'){
+            this.chess.pushUciMove(oEvent.data);
+            this.concludeTurn();
+        }
+    }
+
     sendMoveToEngine = (nextFullMoveClock, nextTurn) => {
-        const { fullMoveClock, } = this.state;
         let fen = Chess.generateFen(nextFullMoveClock, nextTurn, this.chess);
         this.worker.postMessage(`position fen ${fen}`);
-        this.worker.postMessage('go infinite');
+        this.worker.postMessage('go');
+        //this.worker.postMessage('stop');
     }
 
     //increment/reset state, set game state flags for next turn
     concludeTurn = () => {
-        const { turn, player, boards, fullMoveClock, } = this.state;
+        const { turn, boards, fullMoveClock, } = this.state;
         let nextTurn = turn === 'w' ? 'b' : 'w';
         let newState = {
             selected: null,
             turn: nextTurn,
-            player: player === 'w' ? 'b' : 'w',//remove later
             moveMap: {},
             boards: [...boards, this.chess.toString()],
             boardIndex: boards.length
