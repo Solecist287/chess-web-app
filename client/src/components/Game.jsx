@@ -86,7 +86,7 @@ class Game extends React.Component {
             newState['message'] = isKingInCheck ? `${nextColor} in check!` : '';
         }else{//gameover: either checkmate or stalemate
             newState['message'] = isKingInCheck ? `${currentColor} wins!` : 'Stalemate';
-            newState['isGameover'] = true;
+            newState['isGameOver'] = true;
         }
         this.setState(newState);
     }
