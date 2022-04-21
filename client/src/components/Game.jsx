@@ -66,6 +66,7 @@ class Game extends React.Component {
     concludeTurn = () => {
         const { turn, boards, fullMoveClock, } = this.state;
         let nextTurn = turn === 'w' ? 'b' : 'w';
+        console.log(`now: ${turn}, next: ${nextTurn}`);
         let newState = {
             selected: null,
             turn: nextTurn,

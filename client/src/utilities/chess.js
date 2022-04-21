@@ -355,14 +355,14 @@ class Chess{
         let [otherKingRow, otherKingCol] = this.getKingCoords(turn === 'w' ? 'b' : 'w', chess);
         //check for pawn attackers
         let forward = turn === 'b' ? 1 : -1;
-        if (areCoordsWithinBounds(row - forward, col - 1)){//check left "pawn"
-            let leftPawn = board[row - forward][col - 1];
+        if (areCoordsWithinBounds(row + forward, col - 1)){//check left "pawn"
+            let leftPawn = board[row + forward][col - 1];
             if (leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){
                 return true;
             }
         }
-        if (areCoordsWithinBounds(row - forward, col + 1)){//check right "pawn"
-            let rightPawn =  board[row - forward][col + 1];
+        if (areCoordsWithinBounds(row + forward, col + 1)){//check right "pawn"
+            let rightPawn =  board[row + forward][col + 1];
             if (rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){
                 return true;
             }
