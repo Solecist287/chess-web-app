@@ -23,33 +23,34 @@ class Chess{
                 this.board[i] = new Array(NUM_COLS).fill(null);
             }
             //add pawns
-            for (let j = 0; j < NUM_COLS; j++){//pawns
-                this.board[1][j] = new Piece('p', 'b'); //b pawns
-                this.board[6][j] = new Piece('p', 'w');//w pawns
-            }
+            //for (let j = 0; j < NUM_COLS; j++){//pawns
+            //    this.board[1][j] = new Piece('p', 'b'); //b pawns
+            //    this.board[6][j] = new Piece('p', 'w');//w pawns
+            //}
             //add rest of black pieces
-            this.board[0][0] = new Piece('r', 'b');
-            this.board[0][1] = new Piece('n', 'b');
-            this.board[0][2] = new Piece('b', 'b');
-            this.board[0][3] = new Piece('q', 'b');
-            this.board[0][4] = new Piece('k', 'b');
-            this.board[0][5] = new Piece('b', 'b');
-            this.board[0][6] = new Piece('n', 'b');
-            this.board[0][7] = new Piece('r', 'b');
+            //this.board[0][0] = new Piece('r', 'b');
+            //this.board[0][1] = new Piece('n', 'b');
+            //this.board[0][2] = new Piece('b', 'b');
+            //this.board[0][3] = new Piece('q', 'b');
+            //this.board[0][4] = new Piece('k', 'b');
+            //this.board[0][5] = new Piece('b', 'b');
+            //this.board[0][6] = new Piece('n', 'b');
+            //this.board[0][7] = new Piece('r', 'b');
             //add rest of white pieces
-            this.board[7][0] = new Piece('r', 'w');
-            this.board[7][1] = new Piece('n', 'w');
-            this.board[7][2] = new Piece('b', 'w');
-            this.board[7][3] = new Piece('q', 'w');
-            this.board[7][4] = new Piece('k', 'w');
-            this.board[7][5] = new Piece('b', 'w');
-            this.board[7][6] = new Piece('n', 'w');
-            this.board[7][7] = new Piece('r', 'w');
+            //this.board[7][0] = new Piece('r', 'w');
+            //this.board[7][1] = new Piece('n', 'w');
+            //this.board[7][2] = new Piece('b', 'w');
+            //this.board[7][3] = new Piece('q', 'w');
+            //this.board[7][4] = new Piece('k', 'w');
+            //this.board[7][5] = new Piece('b', 'w');
+            //this.board[7][6] = new Piece('n', 'w');
+            //this.board[7][7] = new Piece('r', 'w');
 
-            //this.board[3][0] = new Piece('r', 'w');
-            //this.board[3][6] = new Piece('q', 'w');
-            //this.board[3][4] = new Piece('b', 'w');
-            //this.board[5][6] = new Piece('r', 'b');
+            this.board[1][1] = new Piece('p', 'w'); //b pawns
+            this.board[6][6] = new Piece('p', 'b'); //b pawns
+
+            this.board[7][4] = new Piece('k', 'b');
+            this.board[0][4] = new Piece('k', 'w');   
         }
         
     }
@@ -284,7 +285,7 @@ class Chess{
 
     //execute move, record last move, change turn?, flag if check then castling check
     //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
-    pushMove(startRow, startCol, endRow, endCol){
+    pushMove(startRow, startCol, endRow, endCol, promotion=''){
         let movingPiece = this.board[startRow][startCol];
         let movingPieceTimesMoved = movingPiece.timesMoved;
         let dest = this.board[endRow][endCol];
@@ -296,6 +297,8 @@ class Chess{
                     let forward = Math.sign(endRow - startRow);
                     //delete victim piece in en passant
                     this.board[endRow - forward][endCol] = null;
+                }else if (promotion && ((movingPiece.color === 'w' && endRow === 0)||(movingPiece.color === 'b' && endRow === 7))){//pawn promotion
+                    movingPiece = new Piece(promotion, movingPiece.color);
                 }
                 break;
             case 'k'://castling case
@@ -326,8 +329,9 @@ class Chess{
     
     pushUciMove(move){//e.g. 'e5e7'
         let [startRow, startCol] = sanToCoords(String(move).substring(0,2));
-        let [endRow, endCol] = sanToCoords(String(move).substring(2));
-        this.pushMove(startRow, startCol, endRow, endCol);
+        let [endRow, endCol] = sanToCoords(String(move).substring(2,4));
+        let promotion = String(move).charAt(4);//empty str if not exists
+        this.pushMove(startRow, startCol, endRow, endCol, promotion);
     }
 
     pushIndexMove(startIndex, endIndex){
