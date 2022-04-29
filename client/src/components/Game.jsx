@@ -1,11 +1,12 @@
 import React from 'react';
 
 import Chess from '../utilities/chess.js';
-import { EMPTY_SQUARE } from '../utilities/utilities.js';
+import { EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
 
 import Header from './Header.jsx';
 import Board from './Board.jsx';
 import Footer from './Footer.jsx';
+import PawnPromotion from './PawnPromotion.jsx';
 
 class Game extends React.Component {
     constructor(props){
@@ -23,6 +24,7 @@ class Game extends React.Component {
             fullMoveClock: 1,
             message: '',
             isGameOver: false,
+            showPawnPromotionPopup: false,//remove: set to false
         }
     }
 
@@ -50,7 +52,12 @@ class Game extends React.Component {
         //console.log(oEvent.data);
         //console.log(typeof oEvent.data);
         if (typeof oEvent.data === 'string'){
-            this.chess.pushUciMove(oEvent.data);
+            let san = String(oEvent.data).substring(0,4);
+            let promotion = String(oEvent.data).charAt(4);
+            this.chess.pushUciMove(san);
+            if (promotion){
+                this.chess.promotePawn(promotion);
+            }
             this.concludeTurn();
         }
     }
@@ -91,8 +98,16 @@ class Game extends React.Component {
         this.setState(newState);
     }
 
-    travelToBoard = (step) => {
+    navigateToRecordedBoard = (step) => {
         this.setState({boardIndex: step, moveMap: {}, selected: null});
+    }
+
+    concludePlayerTurn = () => {
+        const { turn, fullMoveClock, } = this.state;
+        this.concludeTurn();
+        let nextTurn = turn === 'w' ? 'b' : 'w';
+        let nextFullMoveClock = turn === 'b' ? fullMoveClock + 1 : fullMoveClock;
+        this.sendMoveToEngine(nextFullMoveClock, nextTurn);    
     }
 
     render(){
@@ -119,6 +134,7 @@ class Game extends React.Component {
             isBoardReversed,
             message,
             isGameOver,
+            showPawnPromotionPopup,
         } = this.state;
 
         let turnColor = turn === 'w' ? 'White' : 'Black';
@@ -140,10 +156,12 @@ class Game extends React.Component {
                         if (index in moveMap){
                             if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, this.chess)){
                                 this.chess.pushIndexMove(selected, index);
-                                this.concludeTurn();
-                                let nextTurn = turn === 'w' ? 'b' : 'w';
-                                let nextFullMoveClock = turn === 'b' ? fullMoveClock + 1 : fullMoveClock;
-                                this.sendMoveToEngine(nextFullMoveClock, nextTurn);
+                                //if pawn promotion...
+                                if (String(symbol).toLowerCase() === 'p' && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
+                                    this.setState({showPawnPromotionPopup: true});
+                                }else{
+                                    this.concludePlayerTurn();
+                                }
                             }else{//king in check!
                                 this.setState({
                                     message: 'Cannot put your king in check!'
@@ -171,7 +189,7 @@ class Game extends React.Component {
                 <div style={buttonContainer}>
                     <button
                         disabled={boardIndex <= 0} 
-                        onClick={() => this.travelToBoard(boardIndex - 1)}
+                        onClick={() => this.navigateToRecordedBoard(boardIndex - 1)}
                     >
                         prev
                     </button>
@@ -180,12 +198,19 @@ class Game extends React.Component {
                     </button>
                     <button
                         disabled={boardIndex >= boards.length - 1} 
-                        onClick={() => this.travelToBoard(boardIndex + 1)}
+                        onClick={() => this.navigateToRecordedBoard(boardIndex + 1)}
                     >
                         next
                     </button>
                 </div>
                 <Footer />
+                {showPawnPromotionPopup && (
+                    <PawnPromotion 
+                        promote={(promotion) => {
+                            this.chess.promotePawn(promotion);
+                        }}
+                    />
+                )}
             </div>
         );
     }

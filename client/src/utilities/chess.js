@@ -283,9 +283,15 @@ class Chess{
         return this.generateMoves(row, col, chess).map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));;
     }
 
+    //promotes last moved pawn to a given rank, otherwise queen
+    promotePawn(promotion='q'){
+        let pawn = this.board[this.lastMovedRow][this.lastMovedCol];
+        this.board[this.lastMovedRow][this.lastMovedCol] = new Piece(promotion, pawn.color);
+    }
+
     //execute move, record last move, change turn?, flag if check then castling check
     //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
-    pushMove(startRow, startCol, endRow, endCol, promotion=''){
+    pushMove(startRow, startCol, endRow, endCol){
         let movingPiece = this.board[startRow][startCol];
         let movingPieceTimesMoved = movingPiece.timesMoved;
         let dest = this.board[endRow][endCol];
@@ -297,8 +303,6 @@ class Chess{
                     let forward = Math.sign(endRow - startRow);
                     //delete victim piece in en passant
                     this.board[endRow - forward][endCol] = null;
-                }else if (promotion && ((movingPiece.color === 'w' && endRow === 0)||(movingPiece.color === 'b' && endRow === 7))){//pawn promotion
-                    movingPiece = new Piece(promotion, movingPiece.color);
                 }
                 break;
             case 'k'://castling case
@@ -330,8 +334,7 @@ class Chess{
     pushUciMove(move){//e.g. 'e5e7'
         let [startRow, startCol] = sanToCoords(String(move).substring(0,2));
         let [endRow, endCol] = sanToCoords(String(move).substring(2,4));
-        let promotion = String(move).charAt(4);//empty str if not exists
-        this.pushMove(startRow, startCol, endRow, endCol, promotion);
+        this.pushMove(startRow, startCol, endRow, endCol);
     }
 
     pushIndexMove(startIndex, endIndex){
