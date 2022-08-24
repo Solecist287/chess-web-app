@@ -11,7 +11,7 @@ import PawnPromotion from './PawnPromotion.jsx';
 class Game extends React.Component {
     constructor(props){
         super(props);
-        this.worker = new Worker('stockfish.js');
+        this.worker = new Worker(`${process.env.PUBLIC_URL}/stockfish.js`);
         this.chess = new Chess();
         this.state = {
             turn: 'w',
