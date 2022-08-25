@@ -1,11 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 
+import App from './components/App.jsx';
 import Game from './components/Game.jsx';
+
+const BASE_URL = `${process.env.PUBLIC_URL}`;
+console.log(BASE_URL);
+
 ReactDOM.render(
   <React.StrictMode>
-    <Game />
+    <BrowserRouter basename={BASE_URL}>
+      <Routes>
+        <Route path='/' element={<App />} />
+        <Route path='/game/:playerColor' element={<Game />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')
 );
