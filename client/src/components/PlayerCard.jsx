@@ -1,17 +1,18 @@
 import React from 'react';
 
-class Footer extends React.Component {
+class PlayerCard extends React.Component {
     constructor(props){
         super(props);
         this.state = {}
     }
     render(){
         const root = {};
+        const { name, } = this.props;
         return(
             <div style={root}>
-                Footer!
+                {`${name}`}
             </div>
         );
     }
 }
-export default Footer;
+export default PlayerCard;

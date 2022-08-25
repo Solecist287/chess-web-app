@@ -3,9 +3,8 @@ import React from 'react';
 import Chess from '../utilities/chess.js';
 import { EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
 
-import Header from './Header.jsx';
+import PlayerCard from './PlayerCard.jsx';
 import Board from './Board.jsx';
-import Footer from './Footer.jsx';
 import PawnPromotion from './PawnPromotion.jsx';
 
 class Game extends React.Component {
@@ -143,7 +142,7 @@ class Game extends React.Component {
             <div style={root}>
                 <div>{ `Player vs Stockfish! ${turnString}`}</div>
                 <div>{message}</div>
-                <Header />
+                <PlayerCard name='Bob' />
                 <Board
                     disabled={player !== turn || isGameOver}
                     selected={selected}
@@ -203,7 +202,7 @@ class Game extends React.Component {
                         next
                     </button>
                 </div>
-                <Footer />
+                <PlayerCard name='Bill' />
                 {showPawnPromotionPopup && (
                     <PawnPromotion 
                         promote={(promotion) => {
