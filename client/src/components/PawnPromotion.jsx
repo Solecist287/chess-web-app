@@ -15,16 +15,16 @@ const PawnPromotion = (props) => {
     };
         
     const box = {
-        'position': 'relative',
-        'margin': '0 auto',
-        'width': 'max-content',
-        'max-height': '70vh',
-        'margin-top': 'calc(100vh - 85vh - 20px)',
-        'background': '#fff',
-        'border-radius': '4px',
-        'padding': '20px',
-        'border': '1px solid #999',
-        'overflow': 'auto',
+        position: 'relative',
+        margin: '0 auto',
+        width: 'max-content',
+        maxHeight: '70vh',
+        marginTop: 'calc(100vh - 85vh - 20px)',
+        background: '#fff',
+        borderRadius: '4px',
+        padding: '20px',
+        border: '1px solid #999',
+        overflow: 'auto',
     };
 
     const img = {
@@ -32,11 +32,16 @@ const PawnPromotion = (props) => {
         'width': 'auto',
     };
 
+    let images = Object.keys(imageRouter).filter(key => {
+        return color === 'w' 
+            ? key === key.toUpperCase() && key !== 'K' && key !== 'P'
+            : key === key.toLowerCase() && key !== 'k' && key !== 'p'
+    });
     return(
         <div style={root}>
             <div style={box}>
-                {Object.keys(imageRouter).filter(key => color === 'w' ? key === key.toUpperCase() : key === key.toLowerCase()).map(key => (
-                    <img src={imageRouter[key]}/>
+                {images.map(key => (
+                    <img key={`promotion-image-${key}`} src={imageRouter[key]} onClick={() => promote(key.toLowerCase())}/>
                 ))}
             </div>
         </div>

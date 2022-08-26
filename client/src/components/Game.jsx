@@ -62,8 +62,6 @@ const Game = (props) => {
         
         //UPDATE TURN: call engine if computer's turn
         if (player !== turn){
-            console.log('chess')
-            console.log(chess);
             let fen = Chess.generateFen(fullMoveClock, turn, chess);
             worker.postMessage(`position fen ${fen}`);
             worker.postMessage('go');
@@ -156,7 +154,6 @@ const Game = (props) => {
 
     let turnColor = turn === 'w' ? 'White' : 'Black';
     let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
-    console.log(`PAWN PROMOTION: ${showPawnPromotionPopup}`);
     //console.log(boards);
     //console.log(boardIndex);
     return(
@@ -243,6 +240,7 @@ const Game = (props) => {
                 <PawnPromotion
                     color={turn} 
                     promote={(promotion) => {
+                        setShowPawnPromotionPopup(false);
                         chess.promotePawn(promotion);
                         concludeTurn();
                     }}
