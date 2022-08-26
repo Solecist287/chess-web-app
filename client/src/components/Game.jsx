@@ -159,7 +159,7 @@ const Game = (props) => {
     return(
         <div style={root}>
             <div style={{'margin': '0 auto'}}>{ `Player vs Stockfish! ${turnString}`}</div>
-            <div>{message}</div>
+            <div style={{'margin': '0 auto'}}>{message}</div>
             <PlayerCard name='Bob' />
             <Board
                 disabled={player !== turn || isGameOver}
