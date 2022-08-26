@@ -153,6 +153,7 @@ const Game = (props) => {
 
     let turnColor = turn === 'w' ? 'White' : 'Black';
     let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
+    console.log(`PAWN PROMOTION: ${showPawnPromotionPopup}`);
     //console.log(boards);
     //console.log(boardIndex);
     return(
@@ -173,7 +174,9 @@ const Game = (props) => {
                         if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, chess)){
                             chess.pushIndexMove(selected, index);
                             //if pawn promotion...
-                            if (String(symbol).toLowerCase() === 'p' && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
+                            //console.log(`symbol ${symbol}, iswhite ${isPlayerWhite}, index ${index}`)
+                            let isSelectedAPawn = selected && boards[boardIndex].charAt(selected).toLowerCase() === 'p';
+                            if (isSelectedAPawn && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
                                 setShowPawnPromotionPopup(true);
                             }else{
                                 concludeTurn();
@@ -233,10 +236,11 @@ const Game = (props) => {
                 </button>
             </div>
             <PlayerCard name='Bill' />
-            {showPawnPromotionPopup && (
+            {Boolean(showPawnPromotionPopup) && (
                 <PawnPromotion 
                     promote={(promotion) => {
                         chess.promotePawn(promotion);
+                        concludeTurn();
                     }}
                 />
             )}
