@@ -15,39 +15,66 @@ const chess = new Chess();
 
 const Game = (props) => {
     const player = useParams().playerColor;
-    const [turn, setTurn] = useState('w');
-    const [selected, setSelected] = useState(null);
-    const [isBoardReversed, setIsBoardReversed] = useState(false);
-    const [moveMap, setMoveMap] = useState({});//map of nums range (0-63), includes clicked piece and its possible moves
-    const [boards, setBoards] = useState([chess.toString()]);//list of board strings i.e. arr[64]
-    const [boardIndex, setBoardIndex] = useState(0);//which board in boards[] to view when looking at prev moves
-    const [fullMoveClock, setFullMoveClock] = useState(1);
-    const [message, setMessage] = useState('');
-    const [isGameOver, setIsGameOver] = useState(false);
-    const [showPawnPromotionPopup, setShowPawnPromotionPopup] = useState(false);//remove: set to false
+    const [isMounted, setIsMounted] = useState(false);
+    
+    const [gameState, setGameState] = useState({
+        turn: 'w',
+        selected: null,
+        isBoardReversed: false,
+        moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
+        boards: [chess.toString()],//list of board strings i.e. arr[64]
+        boardIndex: 0,//which board in boards[] to view when looking at prev moves
+        fullMoveClock: 1,
+        message: '',
+        isGameOver: false,
+    });
+    const [showPawnPromotionPopup, setShowPawnPromotionPopup] = useState(false);
+
+    const {
+        turn,
+        selected,
+        isBoardReversed,
+        moveMap,
+        boards,
+        boardIndex,
+        fullMoveClock,
+        message,
+        isGameOver
+    } = gameState;
 
     useEffect(() => {
-        console.log('useeffect called');
-        //mount: setup comms with stockfish engine
-        window.addEventListener('message', relayEngineResponse);
-
-        worker.onmessage = function(oEvent) {
-            console.log('Worker said : ' + oEvent.data);
-            let tokens = oEvent.data.split(' ');
-            if (tokens[0] === 'bestmove'){
-                postMessage(tokens[1]);
-            }
-        };
-        worker.postMessage('uci');
-        worker.postMessage('ucinewgame');
-        worker.postMessage('isready');
+        if (!isMounted){
+            //mount: setup comms with stockfish engine
+            window.addEventListener('message', relayEngineResponse);
+            worker.onmessage = function(oEvent) {
+                console.log('Worker said : ' + oEvent.data);
+                let tokens = oEvent.data.split(' ');
+                if (tokens[0] === 'bestmove'){
+                    postMessage(tokens[1]);
+                }
+            };
+            worker.postMessage('uci');
+            worker.postMessage('ucinewgame');
+            worker.postMessage('isready');
+            setIsMounted(true);
+        }
+        
+        //UPDATE TURN: call engine if computer's turn
+        if (player !== turn){
+            let fen = Chess.generateFen(fullMoveClock, turn, chess);
+            console.log(`trigger!!!: turn ${turn}`);
+            worker.postMessage(`position fen ${fen}`);
+            worker.postMessage('go');
+            //worker.postMessage('stop');
+            
+        }
 
         //cleanup on unmount
-        return function cleanup(){
-            window.removeEventListener('message', relayEngineResponse);
-            worker.terminate();
-        }
-    }, []);
+        //return function cleanup(){
+        //    window.removeEventListener('message', relayEngineResponse);
+        //    worker.terminate();
+        //}
+    }, [gameState]);
 
     const relayEngineResponse = (oEvent) => {
         //console.log(oEvent.data);
@@ -59,62 +86,55 @@ const Game = (props) => {
             if (promotion){
                 chess.promotePawn(promotion);
             }
-            console.log('robot')
             concludeTurn();
         }
     }
 
-    const sendMoveToEngine = (nextFullMoveClock, nextTurn) => {
-        let fen = Chess.generateFen(nextFullMoveClock, nextTurn, chess);
-        worker.postMessage(`position fen ${fen}`);
-        worker.postMessage('go');
-        //worker.postMessage('stop');
-    }
-
     //increment/reset state, set game state flags for next turn
     const concludeTurn = () => {
-        const nextTurn = turn === 'w' ? 'b' : 'w';
+        setGameState(prevGameState => {
+            const nextTurn = prevGameState.turn === 'w' ? 'b' : 'w';
         
-        console.log(`now: ${turn}, next: ${nextTurn}`);
-        console.log(`selected:${selected}`)
-        //increment full move clock when black concludes turn
-        let nextFullMoveClock = turn === 'b' ? fullMoveClock + 1 : fullMoveClock;
+            console.log(`now: ${prevGameState.turn}, next: ${nextTurn}`);
+            //increment full move clock when black concludes turn
+            let nextFullMoveClock = prevGameState.turn === 'b' ? prevGameState.fullMoveClock + 1 : prevGameState.fullMoveClock;
 
-        let isKingInCheck = Chess.isKingInCheck(nextTurn, chess);
-        let currentColorText = turn === 'w' ? 'White' : 'Black';
-        let nextColorText = nextTurn === 'w' ? 'White' : 'Black';
+            let isKingInCheck = Chess.isKingInCheck(nextTurn, chess);
+            let currentColorText = prevGameState.turn === 'w' ? 'White' : 'Black';
+            let nextColorText = nextTurn === 'w' ? 'White' : 'Black';
 
-        let nextisGameOver = false
-        let nextMessage = '';
-        if (Chess.hasValidMoves(nextTurn, chess)){
-            nextMessage = isKingInCheck ? `${nextColorText} in check!` : '';
-        }else{//gameover: either checkmate or stalemate
-            nextMessage = isKingInCheck ? `${currentColorText} wins!` : 'Stalemate';
-            nextisGameOver = true;
-        }
-        setFullMoveClock(nextFullMoveClock);
-        setSelected(null);
-        setTurn(nextTurn);
-        setMoveMap({});
-        setBoards([...boards, chess.toString()]);
-        setBoardIndex(boards.length);
-        setMessage(nextMessage);
-        setIsGameOver(nextisGameOver);
+            let nextisGameOver = false;
+            let nextMessage = '';
+            if (Chess.hasValidMoves(nextTurn, chess)){
+                nextMessage = isKingInCheck ? `${nextColorText} in check!` : '';
+            }else{//gameover: either checkmate or stalemate
+                nextMessage = isKingInCheck ? `${currentColorText} wins!` : 'Stalemate';
+                nextisGameOver = true;
+            }
+
+            return {
+                fullMoveClock: nextFullMoveClock, 
+                selected: null,
+                turn: nextTurn,
+                moveMap: {},
+                boards: [...prevGameState.boards, chess.toString()],
+                boardIndex: prevGameState.boards.length,
+                message: nextMessage,
+                isGameOver: nextisGameOver
+            };
+        });
     }
 
     const navigateToRecordedBoard = (step) => {
-        setBoardIndex(step);
-        setMoveMap({});
-        setSelected(null);
+        setGameState(prevGameState => {
+            return {
+                ...prevGameState,
+                boardIndex: step,
+                moveMap: {},
+                selected: null
+            };
+        });
     }
-
-    const concludePlayerTurn = () => {
-        concludeTurn();
-        let nextTurn = turn === 'w' ? 'b' : 'w';
-        let nextFullMoveClock = turn === 'b' ? fullMoveClock + 1 : fullMoveClock;
-        sendMoveToEngine(nextFullMoveClock, nextTurn);    
-    }
-
     
     const root = {
         maxHeight: '100vh',
@@ -130,7 +150,8 @@ const Game = (props) => {
 
     let turnColor = turn === 'w' ? 'White' : 'Black';
     let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
-    console.log(turnColor)
+    console.log(boards);
+    console.log(boardIndex);
     return(
         <div style={root}>
             <div>{ `Player vs Stockfish! ${turnString}`}</div>
@@ -152,10 +173,15 @@ const Game = (props) => {
                             if (String(symbol).toLowerCase() === 'p' && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
                                 setShowPawnPromotionPopup(true);
                             }else{
-                                concludePlayerTurn();
+                                concludeTurn();
                             }
                         }else{//king in check!
-                            setMessage('Cannot put your king in check!');
+                            setGameState(prevGameState => {
+                                return {
+                                    ...prevGameState, 
+                                    message: 'Cannot put your king in check!'
+                                };
+                            });
                         }
                     }
                     //only select square where it has a piece you own
@@ -167,8 +193,13 @@ const Game = (props) => {
                             return map;
                         }, {});
                         //permit board to highlight selected piece, along with its possible moves
-                        setSelected(index);
-                        setMoveMap(moveMap);
+                        setGameState(prevGameState => {
+                            return {
+                                ...prevGameState,
+                                selected: index,
+                                moveMap: moveMap
+                            };
+                        });
                     }
                 }}
                 board={boards[boardIndex]}
@@ -181,7 +212,14 @@ const Game = (props) => {
                 >
                     prev
                 </button>
-                <button onClick={() => setIsBoardReversed(!isBoardReversed)}>
+                <button 
+                    onClick={() => setGameState(prevGameState => {
+                        return {
+                            ...prevGameState, 
+                            isBoardReversed: !isBoardReversed
+                        };
+                    })}
+                >
                     flip
                 </button>
                 <button
