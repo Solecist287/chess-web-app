@@ -20,7 +20,7 @@ const Game = (props) => {
     const [gameState, setGameState] = useState({
         turn: 'w',
         selected: null,
-        isBoardReversed: false,
+        isBoardReversed: player === 'b' ? true : false,
         moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [chess.toString()],//list of board strings i.e. arr[64]
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
@@ -117,6 +117,7 @@ const Game = (props) => {
             }
 
             return {
+                ...prevGameState,
                 fullMoveClock: nextFullMoveClock, 
                 selected: null,
                 turn: nextTurn,
