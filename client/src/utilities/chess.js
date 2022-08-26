@@ -604,7 +604,7 @@ class Chess{
         }
         //en passant square
         let en = '-';
-        let lastMovedPiece = board[lastMovedRow][lastMovedCol];
+        let lastMovedPiece = lastMovedRow && lastMovedCol ? board[lastMovedRow][lastMovedCol] : null;
         if (lastMovedPiece && lastMovedPiece.color !== turn && lastMovedPiece.type === 'p' && //enemy pawn
             lastMovedPiece.timesMoved === 1 && 
             ((lastMovedPiece.color === 'w' && lastMovedRow === 4) || (lastMovedPiece.color === 'b' && lastMovedRow === 3))

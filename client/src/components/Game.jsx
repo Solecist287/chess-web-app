@@ -62,11 +62,12 @@ const Game = (props) => {
         
         //UPDATE TURN: call engine if computer's turn
         if (player !== turn){
+            console.log('chess')
+            console.log(chess);
             let fen = Chess.generateFen(fullMoveClock, turn, chess);
             worker.postMessage(`position fen ${fen}`);
             worker.postMessage('go');
             //worker.postMessage('stop');
-            
         }
     }, [gameState]);
 
