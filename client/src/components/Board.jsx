@@ -1,4 +1,4 @@
-import {React, Component, Fragment} from 'react';
+import { React, Fragment } from 'react';
 import Tile from './Tile.jsx';
 
 import { indexToCoords, RANKS, FILES, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
