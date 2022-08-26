@@ -42,6 +42,7 @@ const Game = (props) => {
         isGameOver
     } = gameState;
 
+    //didmount (set stockfish listener) and didupdate (game state changes)
     useEffect(() => {
         if (!isMounted){
             //mount: setup comms with stockfish engine
@@ -62,19 +63,21 @@ const Game = (props) => {
         //UPDATE TURN: call engine if computer's turn
         if (player !== turn){
             let fen = Chess.generateFen(fullMoveClock, turn, chess);
-            console.log(`trigger!!!: turn ${turn}`);
             worker.postMessage(`position fen ${fen}`);
             worker.postMessage('go');
             //worker.postMessage('stop');
             
         }
-
-        //cleanup on unmount
-        //return function cleanup(){
-        //    window.removeEventListener('message', relayEngineResponse);
-        //    worker.terminate();
-        //}
     }, [gameState]);
+
+    //unmount for removing stockfish listener
+    useEffect(() => {
+        return () => {
+            console.log('cleanup');
+            window.removeEventListener('message', relayEngineResponse);
+            worker.terminate();
+        }
+    }, []);
 
     const relayEngineResponse = (oEvent) => {
         //console.log(oEvent.data);
@@ -150,8 +153,8 @@ const Game = (props) => {
 
     let turnColor = turn === 'w' ? 'White' : 'Black';
     let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
-    console.log(boards);
-    console.log(boardIndex);
+    //console.log(boards);
+    //console.log(boardIndex);
     return(
         <div style={root}>
             <div>{ `Player vs Stockfish! ${turnString}`}</div>
