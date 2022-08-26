@@ -150,6 +150,7 @@ const Game = (props) => {
         display: 'flex',
         flexDirection: 'row',
         width: '80vh',
+        margin: '0 auto',
         justifyContent: 'space-between',
     }
 
@@ -160,7 +161,7 @@ const Game = (props) => {
     //console.log(boardIndex);
     return(
         <div style={root}>
-            <div>{ `Player vs Stockfish! ${turnString}`}</div>
+            <div style={{'margin': '0 auto'}}>{ `Player vs Stockfish! ${turnString}`}</div>
             <div>{message}</div>
             <PlayerCard name='Bob' />
             <Board
@@ -239,7 +240,8 @@ const Game = (props) => {
             </div>
             <PlayerCard name='Bill' />
             {Boolean(showPawnPromotionPopup) && (
-                <PawnPromotion 
+                <PawnPromotion
+                    color={turn} 
                     promote={(promotion) => {
                         chess.promotePawn(promotion);
                         concludeTurn();

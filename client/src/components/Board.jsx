@@ -9,7 +9,9 @@ function invertIndex(index){
 
 const Board = (props) => {
     const root = {
-        maxWidth: '80vh',
+        //paddingLeft: 'calc((100vw - 80vh) / 2)',
+        margin: '0 auto',
+        width: '80vh',
         maxHeight: '80vh'
     };
     const darkSquare = '#D18B47';

@@ -1,6 +1,10 @@
 import React from 'react';
+import imageRouter from '../utilities/imageRouter.js';
 
 const PawnPromotion = (props) => {
+
+    const { color, promote, } = props;
+
     const root = {
         position: 'fixed',
         background: '#00000050',
@@ -12,9 +16,8 @@ const PawnPromotion = (props) => {
         
     const box = {
         'position': 'relative',
-        'width': '70%',
         'margin': '0 auto',
-        'height': 'auto',
+        'width': 'max-content',
         'max-height': '70vh',
         'margin-top': 'calc(100vh - 85vh - 20px)',
         'background': '#fff',
@@ -24,10 +27,17 @@ const PawnPromotion = (props) => {
         'overflow': 'auto',
     };
 
+    const img = {
+        'height': 'auto',
+        'width': 'auto',
+    };
+
     return(
         <div style={root}>
             <div style={box}>
-                Pawn promotion: select a piece
+                {Object.keys(imageRouter).filter(key => color === 'w' ? key === key.toUpperCase() : key === key.toLowerCase()).map(key => (
+                    <img src={imageRouter[key]}/>
+                ))}
             </div>
         </div>
     )
