@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import React, { useState, useEffect, } from 'react';
+import { useLocation, } from 'react-router-dom';
 
 import Chess from '../utilities/chess.js';
 import { EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
@@ -7,18 +7,17 @@ import { EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
 import PlayerCard from './PlayerCard.jsx';
 import Board from './Board.jsx';
 import PawnPromotion from './PawnPromotion.jsx';
-
-const worker = new Worker(`${process.env.PUBLIC_URL}/stockfish.js`);
-const chess = new Chess();
-
 //TODO: generic turncolor function
 
 const Game = (props) => {
+    const [worker] = useState(new Worker(`${process.env.PUBLIC_URL}/stockfish.js`));
+    const [chess] = useState(new Chess());
+
+    let location = useLocation();
     const {
         player = 'w',
-    } = useLocation().state;
+    } = location.state;
     
-    const [isMounted, setIsMounted] = useState(false);
     const [gameState, setGameState] = useState({
         turn: 'w',
         selected: null,
@@ -31,6 +30,7 @@ const Game = (props) => {
         isGameOver: false,
     });
     const [showPawnPromotionPopup, setShowPawnPromotionPopup] = useState(false);
+    const [isEngineReady, setIsEngineReady] = useState(false);
 
     const {
         turn,
@@ -46,33 +46,36 @@ const Game = (props) => {
 
     //didmount (set stockfish listener) and didupdate (game state changes)
     useEffect(() => {
-        if (!isMounted){
-            //mount: setup comms with stockfish engine
-            window.addEventListener('message', relayEngineResponse);
-            worker.onmessage = function(oEvent) {
-                console.log('Worker said : ' + oEvent.data);
-                let tokens = oEvent.data.split(' ');
-                if (tokens[0] === 'bestmove'){
-                    postMessage(tokens[1]);
-                }
-            };
-            worker.postMessage('uci');
-            worker.postMessage('ucinewgame');
-            worker.postMessage('isready');
-            setIsMounted(true);
-        }
-        
+        console.log(chess);
+        console.log(worker);
         //UPDATE TURN: call engine if computer's turn
-        if (player !== turn){
+        if (isEngineReady && player !== turn){
+            console.log('ask robot')
             let fen = Chess.generateFen(fullMoveClock, turn, chess);
             worker.postMessage(`position fen ${fen}`);
             worker.postMessage('go');
             //worker.postMessage('stop');
         }
-    }, [gameState]);
+    }, [gameState, isEngineReady]);
 
     //unmount for removing stockfish listener
     useEffect(() => {
+        console.log('mount') 
+        //mount: setup comms with stockfish engine
+        window.addEventListener('message', relayEngineResponse);
+        worker.onmessage = function(oEvent) {
+            console.log('Worker said : ' + oEvent.data);
+            let tokens = oEvent.data.split(' ');
+            if (tokens[0] === 'bestmove'){
+                postMessage(tokens[1]);
+            }else if (tokens[0] === 'readyok'){
+                setIsEngineReady(true);
+            }
+        };
+        worker.postMessage('uci');
+        worker.postMessage('ucinewgame');
+        worker.postMessage('isready');
+        
         return () => {
             console.log('cleanup');
             window.removeEventListener('message', relayEngineResponse);

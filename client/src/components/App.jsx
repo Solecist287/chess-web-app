@@ -64,6 +64,7 @@ const App = (props) => {
             </div>
             <Link
                 role='button'
+                type='button'
                 to={{pathname: '/game'}}
                 state={{player: startingColor === 'r' ? ['w', 'b'][Math.floor(Math.random() * 2)] : startingColor,}}
             >

@@ -13,7 +13,7 @@ ReactDOM.render(
     <BrowserRouter basename={BASE_URL}>
       <Routes>
         <Route path='/' element={<App />} />
-        <Route path='/game' element={<Game />} />
+        <Route key='/game' path='/game' element={ <Game /> } />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
