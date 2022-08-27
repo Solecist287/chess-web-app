@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 import Chess from '../utilities/chess.js';
 import { EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
@@ -14,9 +14,11 @@ const chess = new Chess();
 //TODO: generic turncolor function
 
 const Game = (props) => {
-    const player = useParams().playerColor;
-    const [isMounted, setIsMounted] = useState(false);
+    const {
+        player = 'w',
+    } = useLocation().state;
     
+    const [isMounted, setIsMounted] = useState(false);
     const [gameState, setGameState] = useState({
         turn: 'w',
         selected: null,

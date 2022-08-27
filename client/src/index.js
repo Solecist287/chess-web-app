@@ -7,14 +7,13 @@ import App from './components/App.jsx';
 import Game from './components/Game.jsx';
 
 const BASE_URL = `${process.env.PUBLIC_URL}`;
-console.log(BASE_URL);
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter basename={BASE_URL}>
       <Routes>
         <Route path='/' element={<App />} />
-        <Route path='/game/:playerColor' element={<Game />} />
+        <Route path='/game' element={<Game />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
