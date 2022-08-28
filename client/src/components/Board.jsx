@@ -27,7 +27,6 @@ const Board = (props) => {
         warningMap,
         onSelection,
     } = props;
-    console.log(warningMap);
     //immutably flip inputs if isReversed
     let ranks = isReversed ? RANKS.reverse() : RANKS;
     let files = isReversed ? FILES.reverse() : FILES;

@@ -50,14 +50,12 @@ const Game = (props) => {
 
     //didmount (set stockfish listener) and didupdate (game state changes)
     useEffect(() => {
-        console.log(chess);
-        console.log(worker);
         //UPDATE TURN: call engine if computer's turn
         if (isEngineReady && player !== turn){
             console.log('ask robot')
             let fen = Chess.generateFen(fullMoveClock, turn, chess);
             worker.postMessage(`position fen ${fen}`);
-            worker.postMessage('go');
+            worker.postMessage('go movetime 1000');
             //worker.postMessage('stop');
         }
     }, [gameState, isEngineReady]);
