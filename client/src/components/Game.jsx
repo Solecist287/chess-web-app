@@ -11,6 +11,8 @@ import PawnPromotion from './PawnPromotion.jsx';
 
 const Game = (props) => {
     const [worker] = useState(new Worker(`${process.env.PUBLIC_URL}/stockfish.js`));
+    const [isEngineReady, setIsEngineReady] = useState(false);
+    
     const [chess] = useState(new Chess());
 
     let location = useLocation();
@@ -28,10 +30,10 @@ const Game = (props) => {
         fullMoveClock: 1,
         message: '',
         isGameOver: false,
+        warningMap: {},
     });
     const [showPawnPromotionPopup, setShowPawnPromotionPopup] = useState(false);
-    const [isEngineReady, setIsEngineReady] = useState(false);
-
+    
     const {
         turn,
         selected,
@@ -41,7 +43,8 @@ const Game = (props) => {
         boardIndex,
         fullMoveClock,
         message,
-        isGameOver
+        isGameOver,
+        warningMap,
     } = gameState;
 
     //didmount (set stockfish listener) and didupdate (game state changes)
@@ -118,6 +121,11 @@ const Game = (props) => {
                 nextMessage = isKingInCheck ? `${currentColorText} wins!` : 'Stalemate';
                 nextisGameOver = true;
             }
+            let nextTurnKingIndex = Chess.getKingIndex(nextTurn, chess);
+            let nextWarningMap = {};
+            if (isKingInCheck){
+                nextWarningMap[nextTurnKingIndex] = nextTurnKingIndex;
+            }
 
             return {
                 ...prevGameState,
@@ -128,7 +136,8 @@ const Game = (props) => {
                 boards: [...prevGameState.boards, chess.toString()],
                 boardIndex: prevGameState.boards.length,
                 message: nextMessage,
-                isGameOver: nextisGameOver
+                isGameOver: nextisGameOver,
+                warningMap: nextWarningMap
             };
         });
     }
@@ -170,6 +179,7 @@ const Game = (props) => {
                 disabled={player !== turn || isGameOver}
                 selected={selected}
                 moveMap={moveMap}
+                warningMap={warningMap}
                 onSelection={(index, symbol) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === 'w';

@@ -5,6 +5,7 @@ const Tile = (props) => {
     const { 
         position, 
         backgroundColor, 
+        hasOutline,
         symbol,
         onSelection,
     } = props;
@@ -16,6 +17,7 @@ const Tile = (props) => {
         paddingBottom: '12%', /* = width for a 1:1 aspect ratio */
         margin: '0.25%',
         backgroundColor: backgroundColor,
+        outline: hasOutline ? 'red solid' : 'none',
         overflow: 'hidden',
     };
     const content = {

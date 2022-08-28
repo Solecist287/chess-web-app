@@ -17,15 +17,17 @@ const Board = (props) => {
     const darkSquare = '#D18B47';
     const lightSquare = '#FFCE9E';
     const highlighted = '#72FCF1';
-    
+
     const {
         disabled,
         selected,
         board, 
         isReversed, 
         moveMap,
+        warningMap,
         onSelection,
     } = props;
+    console.log(warningMap);
     //immutably flip inputs if isReversed
     let ranks = isReversed ? RANKS.reverse() : RANKS;
     let files = isReversed ? FILES.reverse() : FILES;
@@ -38,13 +40,19 @@ const Board = (props) => {
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
     }
     let moveMapOriented = {};
+    let warningMapOriented = {};
     if (isReversed){
         Object.keys(moveMap).forEach(key => {
             let flippedIndex = invertIndex(key);
             moveMapOriented[flippedIndex] = flippedIndex;
         });
+        Object.keys(warningMap).forEach(key => {
+            let flippedIndex = invertIndex(key);
+            warningMapOriented[flippedIndex] = flippedIndex;
+        });
     }else{
         moveMapOriented = moveMap;
+        warningMapOriented = warningMap;
     }
     return(
         <div style={root}>
@@ -54,12 +62,14 @@ const Board = (props) => {
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
                 let backgroundColor = index === selectedOriented || index in moveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
+                let hasOutline = Boolean(index in warningMapOriented);
                 let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                 return (
                     <Fragment key={`${rank}-${file}`}>
                         <Tile
                             position={`${file}${rank}`}
                             backgroundColor={backgroundColor}
+                            hasOutline={hasOutline}
                             symbol={symbol}
                             onSelection={() => {
                                 if (!disabled){//is enabled when it's your turn

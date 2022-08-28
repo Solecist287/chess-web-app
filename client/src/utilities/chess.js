@@ -23,29 +23,31 @@ class Chess{
                 this.board[i] = new Array(NUM_COLS).fill(null);
             }
             //add pawns
-            //for (let j = 0; j < NUM_COLS; j++){//pawns
-            //    this.board[1][j] = new Piece('p', 'b'); //b pawns
-            //    this.board[6][j] = new Piece('p', 'w');//w pawns
-            //}
+            /*
+            for (let j = 0; j < NUM_COLS; j++){//pawns
+                this.board[1][j] = new Piece('p', 'b'); //b pawns
+                this.board[6][j] = new Piece('p', 'w');//w pawns
+            }
             //add rest of black pieces
-            //this.board[0][0] = new Piece('r', 'b');
-            //this.board[0][1] = new Piece('n', 'b');
-            //this.board[0][2] = new Piece('b', 'b');
-            //this.board[0][3] = new Piece('q', 'b');
-            //this.board[0][4] = new Piece('k', 'b');
-            //this.board[0][5] = new Piece('b', 'b');
-            //this.board[0][6] = new Piece('n', 'b');
-            //this.board[0][7] = new Piece('r', 'b');
+            
+            this.board[0][0] = new Piece('r', 'b');
+            this.board[0][1] = new Piece('n', 'b');
+            this.board[0][2] = new Piece('b', 'b');
+            this.board[0][3] = new Piece('q', 'b');
+            this.board[0][4] = new Piece('k', 'b');
+            this.board[0][5] = new Piece('b', 'b');
+            this.board[0][6] = new Piece('n', 'b');
+            this.board[0][7] = new Piece('r', 'b');
             //add rest of white pieces
-            //this.board[7][0] = new Piece('r', 'w');
-            //this.board[7][1] = new Piece('n', 'w');
-            //this.board[7][2] = new Piece('b', 'w');
-            //this.board[7][3] = new Piece('q', 'w');
-            //this.board[7][4] = new Piece('k', 'w');
-            //this.board[7][5] = new Piece('b', 'w');
-            //this.board[7][6] = new Piece('n', 'w');
-            //this.board[7][7] = new Piece('r', 'w');
-
+            this.board[7][0] = new Piece('r', 'w');
+            this.board[7][1] = new Piece('n', 'w');
+            this.board[7][2] = new Piece('b', 'w');
+            this.board[7][3] = new Piece('q', 'w');
+            this.board[7][4] = new Piece('k', 'w');
+            this.board[7][5] = new Piece('b', 'w');
+            this.board[7][6] = new Piece('n', 'w');
+            this.board[7][7] = new Piece('r', 'w');
+            */
             this.board[1][1] = new Piece('p', 'w'); //b pawns
             this.board[6][6] = new Piece('p', 'b'); //b pawns
 
@@ -354,6 +356,11 @@ class Chess{
             }
         }
         return null;
+    }
+
+    static getKingIndex(color, chess){
+        let [kingRow, kingCol] = this.getKingCoords(color, chess);
+        return kingRow * NUM_ROWS + kingCol;
     }
 
     static isPositionInCheck(row, col, turn, chess){
