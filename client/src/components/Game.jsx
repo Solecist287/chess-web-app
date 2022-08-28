@@ -8,6 +8,7 @@ import PlayerCard from './PlayerCard.jsx';
 import Board from './Board.jsx';
 import PawnPromotion from './PawnPromotion.jsx';
 //TODO: generic turncolor function
+const colorAsText = (turn) => turn === 'w' ? 'White' : 'Black';
 
 const Game = (props) => {
     const [worker] = useState(new Worker(`${process.env.PUBLIC_URL}/stockfish.js`));
@@ -28,7 +29,7 @@ const Game = (props) => {
         boards: [chess.toString()],//list of board strings i.e. arr[64]
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
         fullMoveClock: 1,
-        message: '',
+        message: `${player === 'w' ? 'Your' : `Computer's`} turn, ${colorAsText('w')}`,
         isGameOver: false,
         warningMap: {},
     });
@@ -110,13 +111,13 @@ const Game = (props) => {
             let nextFullMoveClock = prevGameState.turn === 'b' ? prevGameState.fullMoveClock + 1 : prevGameState.fullMoveClock;
 
             let isKingInCheck = Chess.isKingInCheck(nextTurn, chess);
-            let currentColorText = prevGameState.turn === 'w' ? 'White' : 'Black';
-            let nextColorText = nextTurn === 'w' ? 'White' : 'Black';
+            let currentColorText = colorAsText(prevGameState.turn);
+            let nextColorText = colorAsText(nextTurn);
 
             let nextisGameOver = false;
             let nextMessage = '';
             if (Chess.hasValidMoves(nextTurn, chess)){
-                nextMessage = isKingInCheck ? `${nextColorText} in check!` : '';
+                nextMessage = `${player === nextTurn ? 'Your' : `Computer's`} turn, ${nextColorText}`
             }else{//gameover: either checkmate or stalemate
                 nextMessage = isKingInCheck ? `${currentColorText} wins!` : 'Stalemate';
                 nextisGameOver = true;
@@ -165,15 +166,11 @@ const Game = (props) => {
         margin: '0 auto',
         justifyContent: 'space-between',
     }
-
-    let turnColor = turn === 'w' ? 'White' : 'Black';
-    let turnString = `${player === turn ? 'Your' : `Computer's`} turn (${turnColor})`;
     //console.log(boards);
     //console.log(boardIndex);
     return(
         <div style={root}>
-            <div style={{'margin': '0 auto'}}>{ `Player vs Stockfish! ${turnString}`}</div>
-            <div style={{'margin': '0 auto'}}>{message}</div>
+            <div style={{'margin': '0 auto'}}>{ `${message}`}</div>
             <PlayerCard name='Bob' />
             <Board
                 disabled={player !== turn || isGameOver}
