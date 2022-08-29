@@ -7,8 +7,10 @@
 ## Get started
 1. Clone this repo
 2. `cd client/`
-3. `npm start`
-4. Open in desired browser
+3. `npm install`
+4. `npm start`
+5. Open in desired browser at `localhost:3000/chess-web-app`
+6. Choose your desired settings and start the game!
 ---
 ## Tech stack
 ### This project uses:
@@ -21,4 +23,4 @@
 - Hosted on [GitHub Pages](https://pages.github.com/) using the npm package [gh-pages](https://www.npmjs.com/package/gh-pages) to publish it
 ---
 ## Thanks!
-Thank you for checking out this project. I have a lot of fun making this project and hope you try it out!
+Thank you for checking out this project. I had a lot of fun making this project and hope you try it out!
