@@ -164,12 +164,11 @@ const Game = (props) => {
         margin: '0 auto',
         justifyContent: 'space-between',
     }
-    //console.log(boards);
-    //console.log(boardIndex);
+    const isPlayerOnTop = (player === 'b' && !isBoardReversed) || (player === 'w' && isBoardReversed);
     return(
         <div style={root}>
             <div style={{'margin': '0 auto'}}>{ `${message}`}</div>
-            <PlayerCard name='Bob' />
+            <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
                 disabled={player !== turn || isGameOver}
                 selected={selected}
@@ -245,7 +244,7 @@ const Game = (props) => {
                     next
                 </button>
             </div>
-            <PlayerCard name='Bill' />
+            <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />
             {Boolean(showPawnPromotionPopup) && (
                 <PawnPromotion
                     color={turn} 

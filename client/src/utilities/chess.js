@@ -23,7 +23,7 @@ class Chess{
                 this.board[i] = new Array(NUM_COLS).fill(null);
             }
             //add pawns
-            /*
+            ///*
             for (let j = 0; j < NUM_COLS; j++){//pawns
                 this.board[1][j] = new Piece('p', 'b'); //b pawns
                 this.board[6][j] = new Piece('p', 'w');//w pawns
@@ -47,12 +47,12 @@ class Chess{
             this.board[7][5] = new Piece('b', 'w');
             this.board[7][6] = new Piece('n', 'w');
             this.board[7][7] = new Piece('r', 'w');
-            */
-            this.board[1][1] = new Piece('p', 'w'); //b pawns
-            this.board[6][6] = new Piece('p', 'b'); //b pawns
+            //*/
+            //this.board[1][1] = new Piece('p', 'w');
+            //this.board[6][6] = new Piece('p', 'b');
 
-            this.board[7][4] = new Piece('k', 'b');
-            this.board[0][4] = new Piece('k', 'w');   
+            //this.board[7][4] = new Piece('k', 'b');
+            //this.board[0][4] = new Piece('k', 'w');   
         }
         
     }
