@@ -24,6 +24,13 @@ const App = (props) => {
         flexDirection: 'column'
     }
 
+    const startGameButton = {
+        backgroundColor: 'black',
+        color: 'white',
+        padding: '10px 15px',
+        textDecoration: 'none',
+    };
+
     return (
         <form style={root}>
             Welcome to Stockfish Chess!
@@ -63,6 +70,7 @@ const App = (props) => {
                 </div>
             </div>
             <Link
+                style={startGameButton}
                 role='button'
                 type='button'
                 to={{pathname: '/game'}}
