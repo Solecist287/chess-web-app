@@ -25,7 +25,7 @@ const Game = (props) => {
         turn: 'w',
         selected: null,
         isBoardReversed: player === 'b' ? true : false,
-        moveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
+        validMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [chess.toString()],//list of board strings i.e. arr[64]
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
         fullMoveClock: 1,
@@ -39,7 +39,7 @@ const Game = (props) => {
         turn,
         selected,
         isBoardReversed,
-        moveMap,
+        validMoveMap,
         boards,
         boardIndex,
         fullMoveClock,
@@ -131,7 +131,7 @@ const Game = (props) => {
                 fullMoveClock: nextFullMoveClock, 
                 selected: null,
                 turn: nextTurn,
-                moveMap: {},
+                validMoveMap: {},
                 boards: [...prevGameState.boards, chess.toString()],
                 boardIndex: prevGameState.boards.length,
                 message: nextMessage,
@@ -146,7 +146,7 @@ const Game = (props) => {
             return {
                 ...prevGameState,
                 boardIndex: step,
-                moveMap: {},
+                validMoveMap: {},
                 selected: null
             };
         });
@@ -172,14 +172,14 @@ const Game = (props) => {
             <Board
                 disabled={player !== turn || isGameOver}
                 selected={selected}
-                moveMap={moveMap}
+                validMoveMap={validMoveMap}
                 warningMap={warningMap}
                 onSelection={(index, symbol) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === 'w';
                     let isSymbolUpperCase = symbol === symbol.toUpperCase();
                     //if move is in movemap
-                    if (index in moveMap){
+                    if (index in validMoveMap){
                         if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, chess)){
                             chess.pushIndexMove(selected, index);
                             //if pawn promotion...
@@ -203,7 +203,7 @@ const Game = (props) => {
                     else if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
                         //generate possible moves for movemap
                         let possibleMoves = Chess.generateMovesFromIndex(index, chess);
-                        let moveMap = possibleMoves.reduce((map, move) => {
+                        let validMoveMap = possibleMoves.reduce((map, move) => {
                             map[move] = move;
                             return map;
                         }, {});
@@ -212,7 +212,7 @@ const Game = (props) => {
                             return {
                                 ...prevGameState,
                                 selected: index,
-                                moveMap: moveMap
+                                validMoveMap: validMoveMap
                             };
                         });
                     }

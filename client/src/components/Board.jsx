@@ -23,7 +23,7 @@ const Board = (props) => {
         selected,
         board, 
         isReversed, 
-        moveMap,
+        validMoveMap,
         warningMap,
         onSelection,
     } = props;
@@ -38,19 +38,19 @@ const Board = (props) => {
         let boardArr = board.split('');
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
     }
-    let moveMapOriented = {};
+    let validMoveMapOriented = {};
     let warningMapOriented = {};
     if (isReversed){
-        Object.keys(moveMap).forEach(key => {
+        Object.keys(validMoveMap).forEach(key => {
             let flippedIndex = invertIndex(key);
-            moveMapOriented[flippedIndex] = flippedIndex;
+            validMoveMapOriented[flippedIndex] = flippedIndex;
         });
         Object.keys(warningMap).forEach(key => {
             let flippedIndex = invertIndex(key);
             warningMapOriented[flippedIndex] = flippedIndex;
         });
     }else{
-        moveMapOriented = moveMap;
+        validMoveMapOriented = validMoveMap;
         warningMapOriented = warningMap;
     }
     return(
@@ -60,7 +60,7 @@ const Board = (props) => {
                 let rank = ranks[row];
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
-                let backgroundColor = index === selectedOriented || index in moveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
+                let backgroundColor = index === selectedOriented || index in validMoveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
                 let hasOutline = Boolean(index in warningMapOriented);
                 let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                 return (
