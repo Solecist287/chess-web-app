@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import{Link} from "react-router-dom";
 
 
-const App = (props) => {
+const App = () => {
     const [startingColor, setStartingColor] = useState('w');
     const [showLegalMoves, setShowLegalMoves] = useState(true);
-    
+    console.log(showLegalMoves)
     const root = {
         height: '100vh',
         display: 'flex',
@@ -21,7 +21,7 @@ const App = (props) => {
 
     const colorRadioButtons = {
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'row',
     }
 
     const startGameButton = {
@@ -69,12 +69,24 @@ const App = (props) => {
                     </label>
                 </div>
             </div>
+            <label>
+                Show legal moves
+                <input 
+                    type='checkbox' 
+                    value={showLegalMoves}
+                    checked={showLegalMoves}
+                    onChange={() => setShowLegalMoves(!showLegalMoves)}
+                />
+            </label>
             <Link
                 style={startGameButton}
                 role='button'
                 type='button'
                 to={{pathname: '/game'}}
-                state={{player: startingColor === 'r' ? ['w', 'b'][Math.floor(Math.random() * 2)] : startingColor,}}
+                state={{
+                    player: startingColor === 'r' ? ['w', 'b'][Math.floor(Math.random() * 2)] : startingColor,
+                    showLegalMoves: showLegalMoves
+                }}
             >
                 Start game
             </Link>

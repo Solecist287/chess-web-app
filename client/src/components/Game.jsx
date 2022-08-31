@@ -19,13 +19,14 @@ const Game = (props) => {
     let location = useLocation();
     const {
         player = 'w',
+        showLegalMoves = true,
     } = location.state;
     
     const [gameState, setGameState] = useState({
         turn: 'w',
         selected: null,
         isBoardReversed: player === 'b' ? true : false,
-        validMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
+        legalMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [chess.toString()],//list of board strings i.e. arr[64]
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
         fullMoveClock: 1,
@@ -39,7 +40,7 @@ const Game = (props) => {
         turn,
         selected,
         isBoardReversed,
-        validMoveMap,
+        legalMoveMap,
         boards,
         boardIndex,
         fullMoveClock,
@@ -66,7 +67,7 @@ const Game = (props) => {
         //mount: setup comms with stockfish engine
         window.addEventListener('message', relayEngineResponse);
         worker.onmessage = function(oEvent) {
-            console.log('Worker said : ' + oEvent.data);
+            //console.log('Worker said : ' + oEvent.data);
             let tokens = oEvent.data.split(' ');
             if (tokens[0] === 'bestmove'){
                 postMessage(tokens[1]);
@@ -86,7 +87,7 @@ const Game = (props) => {
     }, []);
 
     const relayEngineResponse = (oEvent) => {
-        //console.log(oEvent.data);
+        console.log(oEvent.data);
         //console.log(typeof oEvent.data);
         if (typeof oEvent.data === 'string'){
             let san = String(oEvent.data).substring(0,4);
@@ -131,7 +132,7 @@ const Game = (props) => {
                 fullMoveClock: nextFullMoveClock, 
                 selected: null,
                 turn: nextTurn,
-                validMoveMap: {},
+                legalMoveMap: {},
                 boards: [...prevGameState.boards, chess.toString()],
                 boardIndex: prevGameState.boards.length,
                 message: nextMessage,
@@ -141,12 +142,12 @@ const Game = (props) => {
         });
     }
 
-    const navigateToRecordedBoard = (step) => {
+    const navigateToRecordedBoard = (direction) => {
         setGameState(prevGameState => {
             return {
                 ...prevGameState,
-                boardIndex: step,
-                validMoveMap: {},
+                boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1,
+                legalMoveMap: {},
                 selected: null
             };
         });
@@ -172,14 +173,14 @@ const Game = (props) => {
             <Board
                 disabled={player !== turn || isGameOver}
                 selected={selected}
-                validMoveMap={validMoveMap}
+                legalMoveMap={showLegalMoves ? legalMoveMap : {}}
                 warningMap={warningMap}
                 onSelection={(index, symbol) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === 'w';
                     let isSymbolUpperCase = symbol === symbol.toUpperCase();
                     //if move is in movemap
-                    if (index in validMoveMap){
+                    if (index in legalMoveMap){
                         if (!Chess.wouldIndexMovePutKingInCheck(selected, index, player, chess)){
                             chess.pushIndexMove(selected, index);
                             //if pawn promotion...
@@ -203,7 +204,7 @@ const Game = (props) => {
                     else if (symbol !== EMPTY_SQUARE && isPlayerWhite === isSymbolUpperCase){
                         //generate possible moves for movemap
                         let possibleMoves = Chess.generateMovesFromIndex(index, chess);
-                        let validMoveMap = possibleMoves.reduce((map, move) => {
+                        let legalMoveMap = possibleMoves.reduce((map, move) => {
                             map[move] = move;
                             return map;
                         }, {});
@@ -212,7 +213,7 @@ const Game = (props) => {
                             return {
                                 ...prevGameState,
                                 selected: index,
-                                validMoveMap: validMoveMap
+                                legalMoveMap: legalMoveMap
                             };
                         });
                     }
@@ -223,7 +224,7 @@ const Game = (props) => {
             <div style={buttonContainer}>
                 <button
                     disabled={boardIndex <= 0} 
-                    onClick={() => navigateToRecordedBoard(boardIndex - 1)}
+                    onClick={() => navigateToRecordedBoard('prev')}
                 >
                     prev
                 </button>
@@ -231,7 +232,7 @@ const Game = (props) => {
                     onClick={() => setGameState(prevGameState => {
                         return {
                             ...prevGameState, 
-                            isBoardReversed: !isBoardReversed
+                            isBoardReversed: !prevGameState.isBoardReversed
                         };
                     })}
                 >
@@ -239,7 +240,7 @@ const Game = (props) => {
                 </button>
                 <button
                     disabled={boardIndex >= boards.length - 1} 
-                    onClick={() => navigateToRecordedBoard(boardIndex + 1)}
+                    onClick={() => navigateToRecordedBoard('next')}
                 >
                     next
                 </button>
