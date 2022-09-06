@@ -16,13 +16,15 @@ const Board = (props) => {
     };
     const darkSquare = '#D18B47';
     const lightSquare = '#FFCE9E';
-    const highlighted = '#72FCF1';
+    const highlighted = '#72FCF1';//current selection and legal moves
+    const prevHighlighted = '#b19cd9';//for last move 
 
     const {
         disabled,
         selected,
         board, 
         isReversed, 
+        lastMoveMap,
         legalMoveMap,
         warningMap,
         onSelection,
@@ -38,9 +40,15 @@ const Board = (props) => {
         let boardArr = board.split('');
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
     }
+
+    let lastMoveMapOriented = {};
     let legalMoveMapOriented = {};
     let warningMapOriented = {};
     if (isReversed){
+        Object.keys(lastMoveMap).forEach(key => {
+            let flippedIndex = invertIndex(key);
+            lastMoveMapOriented[flippedIndex] = flippedIndex;
+        });
         Object.keys(legalMoveMap).forEach(key => {
             let flippedIndex = invertIndex(key);
             legalMoveMapOriented[flippedIndex] = flippedIndex;
@@ -50,9 +58,11 @@ const Board = (props) => {
             warningMapOriented[flippedIndex] = flippedIndex;
         });
     }else{
+        lastMoveMapOriented = lastMoveMap;
         legalMoveMapOriented = legalMoveMap;
         warningMapOriented = warningMap;
     }
+
     return(
         <div style={root}>
             {boardOriented.map((symbol, index) => {
@@ -60,7 +70,11 @@ const Board = (props) => {
                 let rank = ranks[row];
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
-                let backgroundColor = index === selectedOriented || index in legalMoveMapOriented ? highlighted : isLightSquare ? lightSquare : darkSquare;
+                let backgroundColor = 
+                    index === selectedOriented || index in legalMoveMapOriented ? highlighted : 
+                    index in lastMoveMapOriented ? prevHighlighted :
+                    isLightSquare ? lightSquare : 
+                    darkSquare;
                 let hasOutline = Boolean(index in warningMapOriented);
                 let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                 return (

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import{Link} from "react-router-dom";
 
 
 const App = () => {
     const [startingColor, setStartingColor] = useState('w');
     const [showLegalMoves, setShowLegalMoves] = useState(true);
-    console.log(showLegalMoves)
     const root = {
         height: '100vh',
         display: 'flex',
@@ -70,7 +69,7 @@ const App = () => {
                 </div>
             </div>
             <label>
-                Show legal moves
+                Show pseudo-legal moves
                 <input 
                     type='checkbox' 
                     value={showLegalMoves}
