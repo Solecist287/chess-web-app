@@ -156,7 +156,9 @@ const Game = (props) => {
             return {
                 ...prevGameState,
                 boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1,
+                lastMoveMap: {},
                 legalMoveMap: {},
+                warningMap: {},
                 selected: null,
             };
         });
@@ -180,7 +182,7 @@ const Game = (props) => {
             <div style={{'margin': '0 auto'}}>{ `${message}`}</div>
             <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
-                disabled={player !== turn || isGameOver}
+                disabled={!(player === turn && boardIndex === boards.length - 1) || isGameOver}
                 selected={selected}
                 lastMoveMap={boardMoves[boardIndex]}
                 legalMoveMap={showLegalMoves ? legalMoveMap : {}}
