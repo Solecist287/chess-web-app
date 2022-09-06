@@ -156,7 +156,6 @@ const Game = (props) => {
             return {
                 ...prevGameState,
                 boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1,
-                lastMoveMap: {},
                 legalMoveMap: {},
                 warningMap: {},
                 selected: null,
