@@ -10,8 +10,9 @@ import PawnPromotion from './PawnPromotion.jsx';
 //TODO: generic turncolor function
 const colorAsText = (turn) => turn === 'w' ? 'White' : 'Black';
 
+let worker = null;
+
 const Game = (props) => {
-    const [worker] = useState(new Worker(`${process.env.PUBLIC_URL}/stockfish.js`));
     const [isEngineReady, setIsEngineReady] = useState(false);
     
     const [chess] = useState(new Chess());
@@ -65,11 +66,12 @@ const Game = (props) => {
 
     //unmount for removing stockfish listener
     useEffect(() => {
-        console.log('mount') 
+        console.log('mount');
+        worker = new Worker(`${process.env.PUBLIC_URL}/stockfish.js`)
         //mount: setup comms with stockfish engine
         window.addEventListener('message', relayEngineResponse);
         worker.onmessage = function(oEvent) {
-            console.log('Worker said : ' + oEvent.data);
+            //console.log('Worker said : ' + oEvent.data);
             let tokens = oEvent.data.split(' ');
             if (tokens[0] === 'bestmove'){
                 postMessage(tokens[1]);
