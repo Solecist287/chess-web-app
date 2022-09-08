@@ -1,9 +1,8 @@
-import { React, Fragment } from 'react';
+import { React } from 'react';
 import imageRouter from '../utilities/imageRouter.js';
 
 const Tile = (props) => {
-    const { 
-        position, 
+    const {
         backgroundColor, 
         hasOutline,
         symbol,
@@ -15,7 +14,7 @@ const Tile = (props) => {
         position: 'relative',
         width: '12%',
         paddingBottom: '12%', /* = width for a 1:1 aspect ratio */
-        margin: '0.25%',
+        margin: '0.15%',
         backgroundColor: backgroundColor,
         outline: hasOutline ? 'red solid' : 'none',
         overflow: 'hidden',

@@ -2,7 +2,7 @@ import React, { useState, useEffect, } from 'react';
 import { useLocation, } from 'react-router-dom';
 
 import Chess from '../utilities/chess.js';
-import { sanToIndex, EMPTY_SQUARE, NUM_COLS, NUM_ROWS } from '../utilities/utilities.js';
+import { sanToIndex, EMPTY_SQUARE, NUM_COLS } from '../utilities/utilities.js';
 
 import PlayerCard from './PlayerCard.jsx';
 import Board from './Board.jsx';
@@ -153,11 +153,11 @@ const Game = (props) => {
         });
     }
 
-    const navigateToRecordedBoard = (direction) => {
+    const navigateToRecordedBoard = (index) => {
         setGameState(prevGameState => {
             return {
                 ...prevGameState,
-                boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1
+                boardIndex: index
             };
         });
     }
@@ -171,16 +171,27 @@ const Game = (props) => {
         display: 'flex',
         flexDirection: 'row',
         width: '80vh',
-        margin: '0 auto',
-        justifyContent: 'space-between',
+        margin: '10px auto',
+        //alignItems: 'center',
+        justifyContent: 'center',
     }
+
+    const button = {
+        backgroundColor: 'black',
+        border: 'none',
+        color: 'white',
+        padding: '10px 15px',
+        fontSize: '1em',
+        cursor: 'pointer',
+    };
+
     const isPlayerOnTop = (player === 'b' && !isBoardReversed) || (player === 'w' && isBoardReversed);
 
     const isAtCurrentBoard = Boolean(boardIndex === boards.length - 1);
 
     return(
         <div style={root}>
-            <div style={{'margin': '0 auto'}}>{ `${message}`}</div>
+            <h2 style={{'margin': '0 auto'}}>{ `${message}`}</h2>
             <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
                 disabled={!player === turn || !isAtCurrentBoard || isGameOver}
@@ -225,7 +236,6 @@ const Game = (props) => {
                             return {
                                 ...prevGameState,
                                 selected: index,
-                                destination: null,
                                 legalMoveMap: legalMoveMap
                             };
                         });
@@ -235,13 +245,8 @@ const Game = (props) => {
                 isReversed={isBoardReversed}
             />
             <div style={buttonContainer}>
-                <button
-                    disabled={boardIndex <= 0} 
-                    onClick={() => navigateToRecordedBoard('prev')}
-                >
-                    prev
-                </button>
                 <button 
+                    style={button}
                     onClick={() => setGameState(prevGameState => {
                         return {
                             ...prevGameState, 
@@ -249,13 +254,35 @@ const Game = (props) => {
                         };
                     })}
                 >
-                    flip
+                    <i class="fa-solid fa-rotate"></i>
                 </button>
                 <button
-                    disabled={boardIndex >= boards.length - 1} 
-                    onClick={() => navigateToRecordedBoard('next')}
+                    style={button}
+                    disabled={boardIndex <= 0} 
+                    onClick={() => navigateToRecordedBoard(0)}
                 >
-                    next
+                    <i class="fa-solid fa-backward-fast"></i>
+                </button>
+                <button
+                    style={button}
+                    disabled={boardIndex <= 0} 
+                    onClick={() => navigateToRecordedBoard(boardIndex - 1)}
+                >
+                    <i class="fa-solid fa-backward"></i>
+                </button>
+                <button
+                    style={button}
+                    disabled={isAtCurrentBoard} 
+                    onClick={() => navigateToRecordedBoard(boardIndex + 1)}
+                >
+                    <i class="fa-solid fa-forward"></i>
+                </button>
+                <button
+                    style={button}
+                    disabled={isAtCurrentBoard} 
+                    onClick={() => navigateToRecordedBoard(boards.length - 1)}
+                >
+                    <i class="fa-solid fa-forward-fast"></i>
                 </button>
             </div>
             <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />

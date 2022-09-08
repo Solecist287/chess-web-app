@@ -12,10 +12,13 @@ const Board = (props) => {
         //paddingLeft: 'calc((100vw - 80vh) / 2)',
         margin: '0 auto',
         width: '80vh',
-        maxHeight: '80vh'
+        maxHeight: '80vh',
     };
-    const darkSquare = '#D18B47';
-    const lightSquare = '#FFCE9E';
+    //const darkSquare = '#D18B47';
+    //const lightSquare = '#FFCE9E';
+    const darkSquare = '#606060';
+    const lightSquare = '#ADADAD';
+    
     const highlighted = '#72FCF1';//current selection and legal moves
     const prevHighlighted = '#b19cd9';//for last move 
 
@@ -80,7 +83,6 @@ const Board = (props) => {
                 return (
                     <Fragment key={`${rank}-${file}`}>
                         <Tile
-                            position={`${file}${rank}`}
                             backgroundColor={backgroundColor}
                             hasOutline={hasOutline}
                             symbol={symbol}
