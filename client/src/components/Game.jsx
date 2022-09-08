@@ -157,10 +157,7 @@ const Game = (props) => {
         setGameState(prevGameState => {
             return {
                 ...prevGameState,
-                boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1,
-                legalMoveMap: {},
-                warningMap: {},
-                selected: null,
+                boardIndex: direction === 'prev' ? prevGameState.boardIndex - 1 : prevGameState.boardIndex + 1
             };
         });
     }
@@ -178,16 +175,19 @@ const Game = (props) => {
         justifyContent: 'space-between',
     }
     const isPlayerOnTop = (player === 'b' && !isBoardReversed) || (player === 'w' && isBoardReversed);
+
+    const isAtCurrentBoard = Boolean(boardIndex === boards.length - 1);
+
     return(
         <div style={root}>
             <div style={{'margin': '0 auto'}}>{ `${message}`}</div>
             <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
-                disabled={!(player === turn && boardIndex === boards.length - 1) || isGameOver}
-                selected={selected}
+                disabled={!player === turn || !isAtCurrentBoard || isGameOver}
+                selected={isAtCurrentBoard ? selected : {}}
                 lastMoveMap={boardMoves[boardIndex]}
-                legalMoveMap={showLegalMoves ? legalMoveMap : {}}
-                warningMap={warningMap}
+                legalMoveMap={showLegalMoves && isAtCurrentBoard ? legalMoveMap : {}}
+                warningMap={isAtCurrentBoard ? warningMap : {}}
                 onSelection={(index, symbol) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === 'w';
