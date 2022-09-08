@@ -170,8 +170,9 @@ const Game = (props) => {
     const buttonContainer = {
         display: 'flex',
         flexDirection: 'row',
-        width: '80vh',
-        margin: '10px auto',
+        width: 'min(80vh, 80vw)',
+        margin: '0 auto',
+        padding: 10,
         //alignItems: 'center',
         justifyContent: 'center',
     }
@@ -244,6 +245,7 @@ const Game = (props) => {
                 board={boards[boardIndex]}
                 isReversed={isBoardReversed}
             />
+            <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />
             <div style={buttonContainer}>
                 <button 
                     style={button}
@@ -285,7 +287,7 @@ const Game = (props) => {
                     <i class="fa-solid fa-forward-fast"></i>
                 </button>
             </div>
-            <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />
+            
             {Boolean(pawnPromotionPopupIndex) && (
                 <PawnPromotion
                     color={turn} 

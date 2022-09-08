@@ -11,8 +11,7 @@ const Board = (props) => {
     const root = {
         //paddingLeft: 'calc((100vw - 80vh) / 2)',
         margin: '0 auto',
-        width: '80vh',
-        maxHeight: '80vh',
+        width: 'min(80vh, 80vw)',
     };
     //const darkSquare = '#D18B47';
     //const lightSquare = '#FFCE9E';
