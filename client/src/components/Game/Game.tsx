@@ -1,14 +1,17 @@
+// react
 import React, { useState, useEffect, } from 'react';
-import { useLocation, } from 'react-router-dom';
-
-import * as Chess from '../../utilities/chess';
-import { indexToCoords, sanToIndex, EMPTY_SQUARE, NUM_COLS, coordsToIndex, } from '../../utilities/utilities';
-
 import './Game.css';
-
-import PlayerCard from '../Board/PlayerCard';
+//hooks
+import { useLocation, } from 'react-router-dom';
+//utils
+import * as Chess from '../../utils/chess';
+import { indexToCoords, sanToIndex, coordsToIndex } from '../../utils/coords';
+import { EMPTY_SQUARE, NUM_COLS } from '../../utils/constants';
+//components
+import PlayerCard from '../PlayerCard/PlayerCard';
 import Board from '../Board/Board';
-import PawnPromotion from '../Board/PawnPromotion';
+import PawnPromotion from '../PawnPromotion/PawnPromotion';
+
 //TODO: generic turncolor function
 const colorAsText = (turn: string) => turn === 'w' ? 'White' : 'Black';
 

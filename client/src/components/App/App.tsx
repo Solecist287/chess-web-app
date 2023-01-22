@@ -1,7 +1,8 @@
+// react
 import React, { useState } from 'react';
-import{ Link } from "react-router-dom";
-
 import './App.css';
+//components
+import{ Link } from "react-router-dom";
 
 const App = () => {
     const [startingColor, setStartingColor] = useState('w');

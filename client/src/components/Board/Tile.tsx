@@ -1,8 +1,8 @@
+// react
 import React from 'react';
-import { StringLiteral } from 'typescript';
-import imageRouter from '../../utilities/imageRouter';
-
 import './Tile.css';
+//utils
+import imageRouter from '../../utils/constants';
 
 type TileProps = {
     backgroundColorMode: string;

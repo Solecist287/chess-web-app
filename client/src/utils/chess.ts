@@ -1,4 +1,5 @@
-import { sanToCoords, coordsToIndex, indexToCoords, coordsToSan, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities';
+import { coordsToSan, areCoordsWithinBounds, pieceToChar } from './coords';
+import { NUM_ROWS, NUM_COLS, EMPTY_SQUARE } from './constants';
 
 export class Piece{
     readonly type: string;

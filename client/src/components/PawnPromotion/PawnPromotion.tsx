@@ -1,7 +1,8 @@
+// react
 import React from 'react';
-import imageRouter from '../../utilities/imageRouter';
-
 import './PawnPromotion.css';
+//utils
+import imageRouter from '../../utils/constants';
 
 type PawnPromotionProps = {
     color: string;

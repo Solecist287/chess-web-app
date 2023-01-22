@@ -1,9 +1,11 @@
+// react
 import React, { Fragment } from 'react';
 import './Board.css';
-
+//utils
+import { indexToCoords } from '../../utils/coords';
+import { RANKS, FILES, NUM_ROWS, NUM_COLS } from '../../utils/constants';
+//components
 import Tile from './Tile';
-
-import { indexToCoords, RANKS, FILES, NUM_ROWS, NUM_COLS } from '../../utilities/utilities';
 
 function invertIndex(index: number){
     return Math.abs(index - (NUM_COLS * NUM_ROWS - 1));

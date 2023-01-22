@@ -1,10 +1,7 @@
+// types
 import { Piece } from './chess';
-
-export const NUM_ROWS = 8;
-export const NUM_COLS = 8;
-export const EMPTY_SQUARE = ' ';
-export const RANKS = [8, 7, 6, 5, 4, 3, 2, 1];//top to bottom (numbers)
-export const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];//left to right (letters)
+//constants
+import { NUM_ROWS, NUM_COLS, FILES, RANKS, EMPTY_SQUARE } from './constants';
 
 //algebraic notation to [row, col]
 export function sanToCoords(san: string){
