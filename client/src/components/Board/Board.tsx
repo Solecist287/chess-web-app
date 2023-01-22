@@ -1,25 +1,26 @@
-import { React, Fragment } from 'react';
-import Tile from './Tile.jsx';
+import React, { Fragment } from 'react';
+import './Board.css';
 
-import { indexToCoords, RANKS, FILES, NUM_ROWS, NUM_COLS } from '../utilities/utilities.js';
+import Tile from './Tile';
 
-function invertIndex(index){
+import { indexToCoords, RANKS, FILES, NUM_ROWS, NUM_COLS } from '../../utilities/utilities';
+
+function invertIndex(index: number){
     return Math.abs(index - (NUM_COLS * NUM_ROWS - 1));
 }
 
-const Board = (props) => {
-    const root = {
-        //paddingLeft: 'calc((100vw - 80vh) / 2)',
-        margin: '0 auto',
-        width: 'min(80vh, 80vw)',
-    };
-    //const darkSquare = '#D18B47';
-    //const lightSquare = '#FFCE9E';
-    const darkSquare = '#606060';
-    const lightSquare = '#ADADAD';
-    
-    const highlighted = '#72FCF1';//current selection and legal moves
-    const prevHighlighted = '#b19cd9';//for last move 
+type BoardProps = {
+    disabled: boolean;
+    board: string;
+    isReversed: boolean;
+    selected: number;
+    lastMoveMap: { [key: string]: number };
+    legalMoveMap: { [key: string]: number };
+    warningMap: { [key: string]: number };
+    onSelection: (index: number , symbol: string) => void;
+};
+
+const Board = (props: BoardProps) => {
 
     const {
         disabled,
@@ -35,28 +36,28 @@ const Board = (props) => {
     let ranks = isReversed ? RANKS.reverse() : RANKS;
     let files = isReversed ? FILES.reverse() : FILES;
 
-    let selectedOriented = isReversed && selected ? invertIndex(selected) : selected;
+    let selectedOriented = isReversed && selected !== -1 ? invertIndex(selected) : selected;
 
-    let boardOriented = [];
+    let boardOriented: string[] = [];
     if (board && board.length){
         let boardArr = board.split('');
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
     }
 
-    let lastMoveMapOriented = {};
-    let legalMoveMapOriented = {};
-    let warningMapOriented = {};
+    let lastMoveMapOriented: { [key: string]: number } = {};
+    let legalMoveMapOriented: { [key: string]: number } = {};
+    let warningMapOriented: { [key: string]: number } = {};
     if (isReversed){
         Object.keys(lastMoveMap).forEach(key => {
-            let flippedIndex = invertIndex(key);
+            let flippedIndex = invertIndex(lastMoveMap[key]);
             lastMoveMapOriented[flippedIndex] = flippedIndex;
         });
         Object.keys(legalMoveMap).forEach(key => {
-            let flippedIndex = invertIndex(key);
+            let flippedIndex = invertIndex(legalMoveMap[key]);
             legalMoveMapOriented[flippedIndex] = flippedIndex;
         });
         Object.keys(warningMap).forEach(key => {
-            let flippedIndex = invertIndex(key);
+            let flippedIndex = invertIndex(warningMap[key]);
             warningMapOriented[flippedIndex] = flippedIndex;
         });
     }else{
@@ -66,26 +67,26 @@ const Board = (props) => {
     }
 
     return(
-        <div style={root}>
+        <div className='Board'>
             {boardOriented.map((symbol, index) => {
                 let [row, col] = indexToCoords(index);
                 let rank = ranks[row];
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
-                let backgroundColor = 
-                    index === selectedOriented || index in legalMoveMapOriented ? highlighted : 
-                    index in lastMoveMapOriented ? prevHighlighted :
-                    isLightSquare ? lightSquare : 
-                    darkSquare;
+                let backgroundColorMode = 
+                    index === selectedOriented || index in legalMoveMapOriented ? 'selected' : 
+                    index in lastMoveMapOriented ? 'previous-selected' :
+                    isLightSquare ? 'light' : 
+                    'dark';
                 let hasOutline = Boolean(index in warningMapOriented);
                 let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                 return (
                     <Fragment key={`${rank}-${file}`}>
                         <Tile
-                            backgroundColor={backgroundColor}
-                            hasOutline={hasOutline}
+                            backgroundColorMode={backgroundColorMode}
+                            outlineMode={hasOutline ? 'outlined' : ''}
                             symbol={symbol}
-                            onSelection={() => {
+                            onClick={() => {
                                 if (!disabled){//is enabled when it's your turn
                                     onSelection(absoluteIndex, symbol);
                                 }

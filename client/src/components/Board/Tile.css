@@ -1,0 +1,50 @@
+.dark {
+    background-color: #606060;
+}
+
+.light {
+    background-color: #ADADAD;
+}
+
+.outlined {
+    outline: red solid;
+}
+
+.selected {
+    background-color: #72FCF1;
+}
+
+.previous-selected {
+    background-color: #b19cd9;   
+}
+
+.Square {
+    float: left;
+    position: relative;
+    width: 12%;
+    padding-bottom: 12%; /* = width for a 1:1 aspect ratio */
+    margin: 0.15%;
+    overflow: hidden;
+}
+
+.Content {
+    position: absolute;
+    height: 90%; /* = 100% - 2*5% padding */
+    width: 90%; /* = 100% - 2*5% padding */
+    padding: 5%;
+}
+
+.Table {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+.Table-cell {
+    display: flex;
+    vertical-align: middle;
+}
+
+.Image {
+    width: 100%;
+}

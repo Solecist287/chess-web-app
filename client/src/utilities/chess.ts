@@ -1,14 +1,19 @@
-import { sanToCoords, coordsToIndex, indexToCoords, coordsToSan, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities.js';
+import { sanToCoords, coordsToIndex, indexToCoords, coordsToSan, areCoordsWithinBounds, NUM_ROWS, NUM_COLS, EMPTY_SQUARE, pieceToChar } from './utilities';
 
-class Piece{
-    constructor(type, color){
+export class Piece{
+    readonly type: string;
+    readonly color: string;
+    timesMoved: number;
+    constructor(type: string, color: string){
         this.type = type;
         this.color = color;
         this.timesMoved = 0;
     }
 }
 
-export function createInitialBoard(){
+export type Board = (Piece | null)[][]
+
+export function createInitialBoard(): Board{
     const board = new Array(NUM_ROWS);
     //INITIALIZE BOARD w/ 2-d array and fill with nulls
     for (let i = 0; i < NUM_ROWS; i++){
@@ -48,7 +53,7 @@ export function createInitialBoard(){
     return board;
 }
 
-export function generateMovesForBishop(board, color, row, col){
+export function generateMovesForBishop(board: Board, color: string, row: number, col: number){
     let moves2d = [];
     let uri = row - 1;
     let urj = col + 1;
@@ -101,7 +106,7 @@ export function generateMovesForBishop(board, color, row, col){
     return moves2d;
 }
 
-export function generateMovesForRook(board, color, row, col){
+export function generateMovesForRook(board: Board, color: string, row: number, col: number){
     let moves2d = [];
     for (let i = row - 1; i > -1; i--){//up
         let piece = board[i][col];
@@ -139,10 +144,10 @@ export function generateMovesForRook(board, color, row, col){
 }
 
 //current turn is assumed to be owner of clicked piece
-export function generateMoves(board, lastMovedRow, lastMovedCol, row, col){
+export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: number, row: number, col: number){
     let selected = board[row][col];
 
-    let moves2d = [];//start as pairs (row, col) => (index) 
+    let moves2d: number[][] = [];//start as pairs (row, col) => (index) 
     if (!selected){ return moves2d; }
     let color = selected.color;
     let timesMoved = selected.timesMoved;
@@ -174,6 +179,7 @@ export function generateMoves(board, lastMovedRow, lastMovedCol, row, col){
                             }
                         }else if (//en passant
                             lastMovedRow === epRow && lastMovedCol === epCol && //last moved piece
+                            epSquare &&                                         //enemy exists
                             epSquare.color !== color && epSquare.type === 'p' && //enemy pawn
                             epSquare.timesMoved === 1 && 
                             ((epSquare.color === 'w' && epRow === 4) || (epSquare.color === 'b' && epRow === 3))
@@ -268,18 +274,22 @@ export function generateMoves(board, lastMovedRow, lastMovedCol, row, col){
 }
 
 //promotes last moved pawn to a given rank, otherwise queen
-export function pushPawnPromotion(originalBoard, row, col, promotion='q'){
+export function pushPawnPromotion(originalBoard: Board, row: number, col: number, promotion='q'){
     let board = structuredClone(originalBoard);
     let pawn = board[row][col];
-    board[row][col] = new Piece(promotion, pawn.color);
+    if (pawn){
+        board[row][col] = new Piece(promotion, pawn.color);
+    }
     return board;
 }
 
 //execute move, record last move, change turn?, flag if check then castling check
 //moves are assumed to have ALREADY been VALIDATED!!! (by engine or move generator)
-export function pushMove(originalBoard, startRow, startCol, endRow, endCol){
+export function pushMove(originalBoard: Board, startRow: number, startCol: number, endRow: number, endCol: number){
     let board = structuredClone(originalBoard);
     let movingPiece = board[startRow][startCol];
+    if (!movingPiece){ return board; }
+
     let movingPieceTimesMoved = movingPiece.timesMoved;
     let dest = board[endRow][endCol];
     switch (movingPiece.type){
@@ -300,7 +310,9 @@ export function pushMove(originalBoard, startRow, startCol, endRow, endCol){
                 let castlingRook = board[startRow][rookStartCol];
                 //move rook
                 board[endRow][rookEndCol] = castlingRook;//move to new place
-                board[endRow][rookEndCol].timesMoved = 1;//update rook move count
+                if (castlingRook){
+                    castlingRook.timesMoved = 1;//update rook move count
+                }
                 board[startRow][rookStartCol] = null;//clear original
             }
             break;
@@ -313,11 +325,11 @@ export function pushMove(originalBoard, startRow, startCol, endRow, endCol){
     board[startRow][startCol] = null;//clear original
     
     //set move flags
-    board[endRow][endCol].timesMoved = movingPieceTimesMoved + 1;//increment move count
+    movingPiece.timesMoved = movingPieceTimesMoved + 1;//increment move count
     return board;
 }
 
-export function getKingCoords(board, color){
+export function getKingCoords(board: Board, color: string){
     for (let i = 0; i < NUM_ROWS; i++){
         for (let j = 0; j < NUM_COLS; j++){
             let piece = board[i][j];
@@ -326,15 +338,15 @@ export function getKingCoords(board, color){
             }
         }
     }
-    return null;
+    return [-1, -1];
 }
 
-export function getKingIndex(board, color){
+export function getKingIndex(board: Board, color: string){
     let [kingRow, kingCol] = getKingCoords(board, color);
     return kingRow * NUM_ROWS + kingCol;
 }
 
-export function isPositionInCheck(board, turn, row, col){
+export function isPositionInCheck(board: Board, turn: string, row: number, col: number){
     //get kings
     let [otherKingRow, otherKingCol] = getKingCoords(board, turn === 'w' ? 'b' : 'w');
     //check for pawn attackers
@@ -465,7 +477,7 @@ export function isPositionInCheck(board, turn, row, col){
     return false;
 }
 
-export function isKingInCheck(board, turn){
+export function isKingInCheck(board: Board, turn: string){
     let [kingRow, kingCol] = getKingCoords(board, turn);
     return isPositionInCheck(board, turn, kingRow, kingCol);
 }
@@ -473,10 +485,11 @@ export function isKingInCheck(board, turn){
 //move was already computed by chess engine or move generator
 //makes deep copy of chess game, executes move and checks if king is in danger
 //returns boolean
-export function wouldMovePutKingInCheck(originalBoard, turn, startRow, startCol, endRow, endCol){
+export function wouldMovePutKingInCheck(originalBoard: Board, turn: string, startRow: number, startCol: number, endRow: number, endCol: number){
 
     //castling?
-    if (originalBoard[startRow][startCol].type === 'k' && Math.abs(startCol - endCol) === 2){
+    let king = originalBoard[startRow][startCol];
+    if (king && king.type === 'k' && Math.abs(startCol - endCol) === 2){
         //check if king already in check
         if (isPositionInCheck(originalBoard, turn, startRow, startCol)){
             return true;
@@ -497,7 +510,7 @@ export function wouldMovePutKingInCheck(originalBoard, turn, startRow, startCol,
 
 //purpose: see whether there are moves that do not put own king in check
 //true: continue, false: check/stalemate 
-export function hasValidMoves(board, turn, lastMovedRow, lastMovedCol){
+export function hasValidMoves(board: Board, turn: string, lastMovedRow: number, lastMovedCol: number){
     for (let startRow = 0; startRow < NUM_ROWS; startRow++){
         for (let startCol = 0; startCol < NUM_COLS; startCol++){
             let piece = board[startRow][startCol];
@@ -516,7 +529,7 @@ export function hasValidMoves(board, turn, lastMovedRow, lastMovedCol){
     return false;
 }
 
-export function generateFen(board, turn, fullMoveClock, lastMovedRow, lastMovedCol){
+export function generateFen(board: Board, turn: string, fullMoveClock: number, lastMovedRow: number, lastMovedCol: number){
     //turn board to fen string
     let fenBoardArr = [];
     let count = 0;//count consecutive empty squares
@@ -585,7 +598,7 @@ export function generateFen(board, turn, fullMoveClock, lastMovedRow, lastMovedC
     return `${fenBoardArr.join('/')} ${turn} ${castlingRights} ${en} ${halfMoveClock} ${fullMoveClock}`;
 }
 
-export function boardToString(board){
+export function boardToString(board: Board){
     let output = '';
     for (let i = 0; i < NUM_ROWS; i++){
         for (let j = 0; j < NUM_COLS; j++){

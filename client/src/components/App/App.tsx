@@ -1,53 +1,24 @@
 import React, { useState } from 'react';
-import{Link} from "react-router-dom";
+import{ Link } from "react-router-dom";
 
+import './App.css';
 
 const App = () => {
     const [startingColor, setStartingColor] = useState('w');
     const [showLegalMoves, setShowLegalMoves] = useState(true);
-    const root = {
-        margin: 10,
-        height: '50vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    };
-
-    const title = {
-        fontSize: '3em',
-    };
-
-    const settings = {
-        padding: 10,
-        fontSize: '1em',
-        border: '1px solid'
-    };
-
-    const colorRadioButtons = {
-        display: 'flex',
-        flexDirection: 'row',
-    }
-
-    const startGameButton = {
-        backgroundColor: 'black',
-        color: 'white',
-        padding: '10px 15px',
-        textDecoration: 'none',
-    };
 
     return (
-        <form style={root}>
-            <h1 style={title}>
+        <form className='App'>
+            <h1 className='Title'>
                 Welcome to Stockfish Chess!
             </h1>
-            <table style={settings}>
+            <table className='Settings'>
                 <tr>
                     <td>
                         Choose starting color  
                     </td>
                     <td>
-                        <div style={colorRadioButtons}>
+                        <div className='Color-radio-buttons'>
                             <label>
                                 <input
                                     type="radio"
@@ -88,8 +59,7 @@ const App = () => {
                     </td>
                     <td>
                         <input 
-                            type='checkbox' 
-                            value={showLegalMoves}
+                            type='checkbox'
                             checked={showLegalMoves}
                             onChange={() => setShowLegalMoves(!showLegalMoves)}
                         />
@@ -98,7 +68,7 @@ const App = () => {
             </table>
 
             <Link
-                style={startGameButton}
+                className='Start-game-button'
                 role='button'
                 type='button'
                 to={{pathname: '/game'}}

@@ -1,0 +1,22 @@
+.Game {
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+};
+.Board-actions {
+    display: flex;
+    flex-direction: row;
+    width: min(80vh, 80vw);
+    margin: 0 auto;
+    padding: 10;
+    justify-content: center;
+}
+
+.Board-button {
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+};

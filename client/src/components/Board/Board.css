@@ -1,0 +1,4 @@
+.Board {
+    margin: 0 auto;
+    width: min(80vh, 80vw);
+}

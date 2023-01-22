@@ -1,32 +1,40 @@
 import React, { useState, useEffect, } from 'react';
 import { useLocation, } from 'react-router-dom';
 
-import * as Chess from '../utilities/chess.js';
-import { indexToCoords, sanToIndex, EMPTY_SQUARE, NUM_COLS, coordsToIndex, } from '../utilities/utilities.js';
+import * as Chess from '../../utilities/chess';
+import { indexToCoords, sanToIndex, EMPTY_SQUARE, NUM_COLS, coordsToIndex, } from '../../utilities/utilities';
 
-import PlayerCard from './PlayerCard.jsx';
-import Board from './Board.jsx';
-import PawnPromotion from './PawnPromotion.jsx';
+import './Game.css';
+
+import PlayerCard from '../Board/PlayerCard';
+import Board from '../Board/Board';
+import PawnPromotion from '../Board/PawnPromotion';
 //TODO: generic turncolor function
-const colorAsText = (turn) => turn === 'w' ? 'White' : 'Black';
+const colorAsText = (turn: string) => turn === 'w' ? 'White' : 'Black';
 
-let worker = null;
+let worker: Worker | null = null;
 let INITIAL_BOARD = Chess.createInitialBoard();
 
-const Game = (props) => {
+type LocationParams = {
+    player: string;
+    showLegalMoves: boolean;
+};
+
+const Game = () => {
     //status of chess engine
     const [isEngineReady, setIsEngineReady] = useState(false);
     //game parameters from url
+    const location = useLocation();
     const {
         player = 'w',
         showLegalMoves = true,
-    } = useLocation().state;
-    
+    } = location.state as LocationParams;
+
     const [gameState, setGameState] = useState({
         board: INITIAL_BOARD, //2d array of Piece objs
         turn: 'w',
-        selected: null,//piece to move
-        lastMoved: null,
+        selected: -1,//piece to move
+        lastMoved: -1,
         isBoardReversed: player === 'b' ? true : false,
         legalMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [Chess.boardToString(INITIAL_BOARD)],//list of board strings i.e. arr[64], uses boardIndex
@@ -64,8 +72,10 @@ const Game = (props) => {
             console.log('ask robot')
             const [lastMovedRow, lastMovedCol] = indexToCoords(lastMoved);
             let fen = Chess.generateFen(board, turn, fullMoveClock, lastMovedRow, lastMovedCol);
-            worker.postMessage(`position fen ${fen}`);
-            worker.postMessage('go movetime 1000');
+            if (worker){
+                worker.postMessage(`position fen ${fen}`);
+                worker.postMessage('go movetime 1000');
+            }
             //worker.postMessage('stop');
         }
     }, [gameState, isEngineReady]);
@@ -92,11 +102,13 @@ const Game = (props) => {
         return () => {
             console.log('cleanup');
             window.removeEventListener('message', relayEngineResponse);
-            worker.terminate();
+            if (worker){
+                worker.terminate();
+            }
         }
     }, []);
 
-    const relayEngineResponse = (oEvent) => {
+    const relayEngineResponse = (oEvent: { data: string; }) => {
         console.log(oEvent.data);
         //console.log(typeof oEvent.data);
         if (typeof oEvent.data === 'string'){
@@ -108,7 +120,7 @@ const Game = (props) => {
     }
 
     //increment/reset state, set game state flags for next turn
-    const concludeTurn = (selected, destination, promotion=null) => {
+    const concludeTurn = (selected: number, destination: number, promotion='') => {
         console.log(`sel: ${selected}, dest: ${destination}, promotion: ${promotion}`)
         let [selectedRow, selectedCol] = indexToCoords(selected);
         let [destinationRow, destinationCol] = indexToCoords(destination);
@@ -119,7 +131,7 @@ const Game = (props) => {
                 nextBoard = Chess.pushPawnPromotion(nextBoard, destinationRow, destinationCol, promotion);
                 setPawnPromotionPopupIndex(0);
             }
-            const nextBoardMoveMap = {};
+            const nextBoardMoveMap : { [key: string]: number } = {};
             nextBoardMoveMap[selected] = selected;
             nextBoardMoveMap[destination] = destination;
 
@@ -144,7 +156,7 @@ const Game = (props) => {
                 nextisGameOver = true;
             }
             let nextTurnKingIndex = Chess.getKingIndex(nextBoard, nextTurn);
-            let nextWarningMap = {};
+            let nextWarningMap : { [key: string]: number } = {};
             if (isKingInCheck){
                 nextWarningMap[nextTurnKingIndex] = nextTurnKingIndex;
             }
@@ -152,8 +164,9 @@ const Game = (props) => {
             return {
                 board: nextBoard,
                 fullMoveClock: nextFullMoveClock, 
-                selected: null,
+                selected: -1,
                 lastMoved: destination,
+                isBoardReversed: prevGameState.isBoardReversed,
                 turn: nextTurn,
                 legalMoveMap: {},
                 boards: [...prevGameState.boards, Chess.boardToString(nextBoard)],
@@ -166,7 +179,7 @@ const Game = (props) => {
         });
     }
 
-    const navigateToRecordedBoard = (index) => {
+    const navigateToRecordedBoard = (index: number) => {
         setGameState(prevGameState => {
             return {
                 ...prevGameState,
@@ -174,46 +187,24 @@ const Game = (props) => {
             };
         });
     }
-    
-    const root = {
-        maxHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-    };
-    const buttonContainer = {
-        display: 'flex',
-        flexDirection: 'row',
-        width: 'min(80vh, 80vw)',
-        margin: '0 auto',
-        padding: 10,
-        //alignItems: 'center',
-        justifyContent: 'center',
-    }
-
-    const button = {
-        backgroundColor: 'black',
-        border: 'none',
-        color: 'white',
-        padding: '10px 15px',
-        fontSize: '1em',
-        cursor: 'pointer',
-    };
 
     const isPlayerOnTop = (player === 'b' && !isBoardReversed) || (player === 'w' && isBoardReversed);
 
     const isAtCurrentBoard = Boolean(boardIndex === boards.length - 1);
 
     return(
-        <div style={root}>
+        <div className='Game'>
             <h2 style={{'margin': '0 auto'}}>{ `${message}`}</h2>
             <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
-                disabled={!player === turn || !isAtCurrentBoard || isGameOver}
-                selected={isAtCurrentBoard ? selected : {}}
+                disabled={player !== turn || !isAtCurrentBoard || isGameOver}
+                board={boards[boardIndex]}
+                isReversed={isBoardReversed}
+                selected={isAtCurrentBoard ? selected : -1}
                 lastMoveMap={boardMoves[boardIndex]}
                 legalMoveMap={showLegalMoves && isAtCurrentBoard ? legalMoveMap : {}}
                 warningMap={isAtCurrentBoard ? warningMap : {}}
-                onSelection={(index, symbol) => {
+                onSelection={(index: number , symbol: string) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === 'w';
                     let isSymbolUpperCase = symbol === symbol.toUpperCase();
@@ -224,11 +215,11 @@ const Game = (props) => {
                         if (!Chess.wouldMovePutKingInCheck(board, player, selectedRow, selectedCol, destinationRow, destinationCol)){
                             //if pawn promotion...
                             //console.log(`symbol ${symbol}, iswhite ${isPlayerWhite}, index ${index}`)
-                            let isSelectedAPawn = selected && boards[boardIndex].charAt(selected).toLowerCase() === 'p';
+                            let isSelectedAPawn = selected !== -1 && boards[boardIndex].charAt(selected).toLowerCase() === 'p';
                             if (isSelectedAPawn && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
                                 setPawnPromotionPopupIndex(index);
                             }else{
-                                concludeTurn(selected, index, null);
+                                concludeTurn(selected, index, '');
                             }
                         }else{//king in check!
                             setGameState(prevGameState => {
@@ -246,7 +237,7 @@ const Game = (props) => {
                         //generate possible moves for movemap
                         let possibleMoves2d = Chess.generateMoves(board, lastMovedRow, lastMovedCol, indexRow, indexCol);
                         let possibleMoves = possibleMoves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
-                        let legalMoveMap = possibleMoves.reduce((map, move) => {
+                        let legalMoveMap = possibleMoves.reduce((map: { [key: string]: number }, move) => {
                             map[move] = move;
                             return map;
                         }, {});
@@ -260,13 +251,11 @@ const Game = (props) => {
                         });
                     }
                 }}
-                board={boards[boardIndex]}
-                isReversed={isBoardReversed}
             />
             <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />
-            <div style={buttonContainer}>
+            <div className='Board-actions'>
                 <button 
-                    style={button}
+                    className='Board-button'
                     onClick={() => setGameState(prevGameState => {
                         return {
                             ...prevGameState, 
@@ -277,28 +266,28 @@ const Game = (props) => {
                     <i className="fa-solid fa-rotate"></i>
                 </button>
                 <button
-                    style={button}
+                    className='Board-button'
                     disabled={boardIndex <= 0} 
                     onClick={() => navigateToRecordedBoard(0)}
                 >
                     <i className="fa-solid fa-backward-fast"></i>
                 </button>
                 <button
-                    style={button}
+                    className='Board-button'
                     disabled={boardIndex <= 0} 
                     onClick={() => navigateToRecordedBoard(boardIndex - 1)}
                 >
                     <i className="fa-solid fa-backward"></i>
                 </button>
                 <button
-                    style={button}
+                    className='Board-button'
                     disabled={isAtCurrentBoard} 
                     onClick={() => navigateToRecordedBoard(boardIndex + 1)}
                 >
                     <i className="fa-solid fa-forward"></i>
                 </button>
                 <button
-                    style={button}
+                    className='Board-button'
                     disabled={isAtCurrentBoard} 
                     onClick={() => navigateToRecordedBoard(boards.length - 1)}
                 >
@@ -309,7 +298,7 @@ const Game = (props) => {
             {Boolean(pawnPromotionPopupIndex) && (
                 <PawnPromotion
                     color={turn} 
-                    promote={(promotion) => concludeTurn(selected, pawnPromotionPopupIndex, promotion)}
+                    promote={(promotion: string) => concludeTurn(selected, pawnPromotionPopupIndex, promotion)}
                 />
             )}
         </div>

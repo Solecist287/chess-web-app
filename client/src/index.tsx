@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 
-import App from './components/App.jsx';
-import Game from './components/Game.jsx';
+import App from './components/App/App';
+import Game from './components/Game/Game';
 
 const BASE_URL = `${process.env.PUBLIC_URL}`;
 
