@@ -189,7 +189,7 @@ const Game = () => {
         });
     }
 
-    const isPlayerOnTop = (player === BLACK && !isBoardReversed) || (player === WHITE && isBoardReversed);
+    // const isPlayerOnTop = (player === BLACK && !isBoardReversed) || (player === WHITE && isBoardReversed);
 
     const isAtCurrentBoard = Boolean(boardIndex === boards.length - 1);
 

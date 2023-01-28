@@ -1,5 +1,5 @@
 // types
-import { Piece } from './chess';
+import { Piece } from './types';
 //constants
 import { WHITE, NUM_ROWS, NUM_COLS, FILES, RANKS, EMPTY_SQUARE } from './constants';
 

@@ -6,18 +6,7 @@ import {
     EMPTY_SQUARE 
 } from './constants';
 
-export class Piece{
-    readonly type: string;
-    readonly color: string;
-    timesMoved: number;
-    constructor(type: string, color: string){
-        this.type = type;
-        this.color = color;
-        this.timesMoved = 0;
-    }
-}
-
-export type Board = (Piece | null)[][]
+import { Piece, Board } from './types';
 
 export function createInitialBoard(): Board{
     const board = new Array(NUM_ROWS);
@@ -284,7 +273,7 @@ export function shouldPromotePawn(board: Board, color: string, startRow: number,
     let piece = board[startRow][startCol];
     if (!piece || piece.type !== PAWN){ return false; } //ensure piece exists and is pawn
     let endIndex = coordsToIndex(endRow, endCol);
-    return ((color == WHITE && endIndex < NUM_COLS)||(color === BLACK && endIndex > 55));    
+    return ((color === WHITE && endIndex < NUM_COLS)||(color === BLACK && endIndex > 55));    
 }
 
 //promotes last moved pawn to a given rank, otherwise queen

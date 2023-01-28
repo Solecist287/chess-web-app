@@ -22,7 +22,11 @@ const PawnPromotion = (props: PawnPromotionProps) => {
         <div className='Pawn-promotion'>
             <div className='Box'>
                 {images.map(key => (
-                    <img key={`promotion-image-${key}`} src={imageRouter[key]} onClick={() => promote(key.toLowerCase())}/>
+                    <img 
+                        key={`promotion-image-${key}`} 
+                        alt={`Click to promote to ${key}`}
+                        src={imageRouter[key]} onClick={() => promote(key.toLowerCase())}
+                    />
                 ))}
             </div>
         </div>
