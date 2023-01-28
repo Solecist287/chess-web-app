@@ -1,5 +1,10 @@
-import { coordsToSan, areCoordsWithinBounds, pieceToChar } from './coords';
-import { NUM_ROWS, NUM_COLS, EMPTY_SQUARE } from './constants';
+import { coordsToSan, areCoordsWithinBounds, pieceToChar, coordsToIndex } from './coords';
+import { 
+    BISHOP, KING, KNIGHT, PAWN, QUEEN, ROOK, 
+    WHITE, BLACK, 
+    NUM_ROWS, NUM_COLS, 
+    EMPTY_SQUARE 
+} from './constants';
 
 export class Piece{
     readonly type: string;
@@ -23,28 +28,28 @@ export function createInitialBoard(): Board{
     //add pawns
     ///*
     for (let j = 0; j < NUM_COLS; j++){//pawns
-        board[1][j] = new Piece('p', 'b'); //b pawns
-        board[6][j] = new Piece('p', 'w');//w pawns
+        board[1][j] = new Piece(PAWN, BLACK); //b pawns
+        board[6][j] = new Piece(PAWN, WHITE);//w pawns
     }
     //add rest of black pieces
     
-    board[0][0] = new Piece('r', 'b');
-    board[0][1] = new Piece('n', 'b');
-    board[0][2] = new Piece('b', 'b');
-    board[0][3] = new Piece('q', 'b');
-    board[0][4] = new Piece('k', 'b');
-    board[0][5] = new Piece('b', 'b');
-    board[0][6] = new Piece('n', 'b');
-    board[0][7] = new Piece('r', 'b');
+    board[0][0] = new Piece(ROOK, BLACK);
+    board[0][1] = new Piece(KNIGHT, BLACK);
+    board[0][2] = new Piece(BISHOP, BLACK);
+    board[0][3] = new Piece(QUEEN, BLACK);
+    board[0][4] = new Piece(KING, BLACK);
+    board[0][5] = new Piece(BISHOP, BLACK);
+    board[0][6] = new Piece(KNIGHT, BLACK);
+    board[0][7] = new Piece(ROOK, BLACK);
     //add rest of white pieces
-    board[7][0] = new Piece('r', 'w');
-    board[7][1] = new Piece('n', 'w');
-    board[7][2] = new Piece('b', 'w');
-    board[7][3] = new Piece('q', 'w');
-    board[7][4] = new Piece('k', 'w');
-    board[7][5] = new Piece('b', 'w');
-    board[7][6] = new Piece('n', 'w');
-    board[7][7] = new Piece('r', 'w');
+    board[7][0] = new Piece(ROOK, WHITE);
+    board[7][1] = new Piece(KNIGHT, WHITE);
+    board[7][2] = new Piece(BISHOP, WHITE);
+    board[7][3] = new Piece(QUEEN, WHITE);
+    board[7][4] = new Piece(KING, WHITE);
+    board[7][5] = new Piece(BISHOP, WHITE);
+    board[7][6] = new Piece(KNIGHT, WHITE);
+    board[7][7] = new Piece(ROOK, WHITE);
     //*/
     //board[1][1] = new Piece('p', 'w');
     //board[6][6] = new Piece('p', 'b');
@@ -154,8 +159,8 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
     let timesMoved = selected.timesMoved;
 
     switch(selected.type){
-        case 'p'://pawn
-            let forward = color === 'b' ? 1 : -1;
+        case PAWN://pawn
+            let forward = color === BLACK ? 1 : -1;
             //has a row ahead
             if (row + forward > -1 && row + forward < NUM_ROWS){
                 //move forward if space is blank
@@ -181,9 +186,9 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
                         }else if (//en passant
                             lastMovedRow === epRow && lastMovedCol === epCol && //last moved piece
                             epSquare &&                                         //enemy exists
-                            epSquare.color !== color && epSquare.type === 'p' && //enemy pawn
+                            epSquare.color !== color && epSquare.type === PAWN && //enemy pawn
                             epSquare.timesMoved === 1 && 
-                            ((epSquare.color === 'w' && epRow === 4) || (epSquare.color === 'b' && epRow === 3))
+                            ((epSquare.color === WHITE && epRow === 4) || (epSquare.color === BLACK && epRow === 3))
                         ){
                             moves2d.push([row + forward, col + side]);
                         }
@@ -191,7 +196,7 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
                 });
             }
             break;
-        case 'n'://knight
+        case KNIGHT://knight
             let unfilteredMoves = [ 
                 [row - 2, col - 1], [row - 2, col + 1], 
                 [row - 1, col - 2], [row - 1, col + 2], 
@@ -211,7 +216,7 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
                 return false;
             });
             break;
-        case 'k'://king
+        case KING://king
             let directionalMoves = [
                 [row + 1, col],//down
                 [row + 1, col - 1],//down left
@@ -235,7 +240,7 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
             });
             if (timesMoved === 0){//king can castle
                 let rightRook = board[row][NUM_COLS - 1];
-                if (rightRook && rightRook.type === 'r' && rightRook.color === color && rightRook.timesMoved === 0){//rooks on right side of board castle
+                if (rightRook && rightRook.type === ROOK && rightRook.color === color && rightRook.timesMoved === 0){//rooks on right side of board castle
                     let areMiddleSquaresClear = true;
                     for (let j = col + 1; j < NUM_COLS - 1; j++){
                         if (board[row][j]){ 
@@ -248,7 +253,7 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
                     }
                 }
                 let leftRook = board[row][0];
-                if (leftRook && leftRook.type === 'r' && leftRook.color === color && leftRook.timesMoved === 0){//rooks on left side of board castle
+                if (leftRook && leftRook.type === ROOK && leftRook.color === color && leftRook.timesMoved === 0){//rooks on left side of board castle
                     let areMiddleSquaresClear = true;
                     for (let j = 1; j < col; j++){
                         if (board[row][j]) /*or square in check*/{ 
@@ -262,11 +267,11 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
                 }
             }
             break;
-        case 'q'://queen poses as rook and bishop
+        case QUEEN://queen poses as rook and bishop
             return [...generateMovesForBishop(board, color, row, col), ...generateMovesForRook(board, color, row, col)];
-        case 'r'://rook
+        case ROOK://rook
             return generateMovesForRook(board, color, row, col);
-        case 'b'://bishop
+        case BISHOP://bishop
             return generateMovesForBishop(board, color, row, col);
         default:
             break;
@@ -274,8 +279,16 @@ export function generateMoves(board: Board, lastMovedRow: number, lastMovedCol: 
     return moves2d;
 }
 
+export function shouldPromotePawn(board: Board, color: string, startRow: number, startCol: number, endRow: number, endCol: number){
+    if (!areCoordsWithinBounds(startRow, startCol)){ return false; } // ensure coords are valid
+    let piece = board[startRow][startCol];
+    if (!piece || piece.type !== PAWN){ return false; } //ensure piece exists and is pawn
+    let endIndex = coordsToIndex(endRow, endCol);
+    return ((color == WHITE && endIndex < NUM_COLS)||(color === BLACK && endIndex > 55));    
+}
+
 //promotes last moved pawn to a given rank, otherwise queen
-export function pushPawnPromotion(originalBoard: Board, row: number, col: number, promotion='q'){
+export function pushPawnPromotion(originalBoard: Board, row: number, col: number, promotion=QUEEN){
     let board = structuredClone(originalBoard);
     let pawn = board[row][col];
     if (pawn){
@@ -294,7 +307,7 @@ export function pushMove(originalBoard: Board, startRow: number, startCol: numbe
     let movingPieceTimesMoved = movingPiece.timesMoved;
     let dest = board[endRow][endCol];
     switch (movingPiece.type){
-        case 'p':
+        case PAWN:
             //en passant: if pawn is attacking and no piece there
             if (Math.abs(startRow - endRow) === 1 && Math.abs(startCol - endCol) === 1 && !dest){
                 //movement: positive if downward, negative if upward
@@ -303,7 +316,7 @@ export function pushMove(originalBoard: Board, startRow: number, startCol: numbe
                 board[endRow - forward][endCol] = null;
             }
             break;
-        case 'k'://castling case
+        case KING://castling case
             if (Math.abs(startCol - endCol) === 2){
                 //grab columns of castling rook starting and ending position
                 let rookEndCol = endCol - startCol > 0 ? NUM_COLS - 3 : 3;
@@ -334,7 +347,7 @@ export function getKingCoords(board: Board, color: string){
     for (let i = 0; i < NUM_ROWS; i++){
         for (let j = 0; j < NUM_COLS; j++){
             let piece = board[i][j];
-            if (piece && piece.type === 'k' && piece.color === color){
+            if (piece && piece.type === KING && piece.color === color){
                 return [i, j];
             }
         }
@@ -349,18 +362,18 @@ export function getKingIndex(board: Board, color: string){
 
 export function isPositionInCheck(board: Board, turn: string, row: number, col: number){
     //get kings
-    let [otherKingRow, otherKingCol] = getKingCoords(board, turn === 'w' ? 'b' : 'w');
+    let [otherKingRow, otherKingCol] = getKingCoords(board, turn === WHITE ? BLACK : WHITE);
     //check for pawn attackers
-    let forward = turn === 'b' ? 1 : -1;
+    let forward = turn === BLACK ? 1 : -1;
     if (areCoordsWithinBounds(row + forward, col - 1)){//check left "pawn"
         let leftPawn = board[row + forward][col - 1];
-        if (leftPawn && leftPawn.type === 'p' && leftPawn.color !== turn){
+        if (leftPawn && leftPawn.type === PAWN && leftPawn.color !== turn){
             return true;
         }
     }
     if (areCoordsWithinBounds(row + forward, col + 1)){//check right "pawn"
         let rightPawn =  board[row + forward][col + 1];
-        if (rightPawn && rightPawn.type === 'p' && rightPawn.color !== turn){
+        if (rightPawn && rightPawn.type === PAWN && rightPawn.color !== turn){
             return true;
         }
     }
@@ -376,7 +389,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
         let [nrow, ncol] = knightCoords;
         if (areCoordsWithinBounds(nrow, ncol)){
             let piece = board[nrow][ncol];
-            if (piece && piece.type === 'n' && piece.color !== turn){
+            if (piece && piece.type === KNIGHT && piece.color !== turn){
                 return true;
             }
         }
@@ -389,7 +402,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     for (let i = row - 1; i > -1; i--){//up
         let piece = board[i][col];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === ROOK || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -398,7 +411,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     for (let i = row + 1; i < NUM_ROWS; i++){//down
         let piece = board[i][col];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === ROOK || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -407,7 +420,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     for (let j = col - 1; j > -1; j--){//left
         let piece = board[row][j];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === ROOK || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -416,7 +429,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     for (let j = col + 1; j < NUM_COLS; j++){//right
         let piece = board[row][j];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'r' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === ROOK || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -428,7 +441,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     while (uri > -1 && urj < NUM_COLS){//upper right
         let piece = board[uri][urj];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === BISHOP || piece.type === QUEEN)){
                 return true;    
             }
             break;
@@ -441,7 +454,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     while (dli < NUM_ROWS && dlj > -1){//down left
         let piece = board[dli][dlj];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === BISHOP || piece.type === QUEEN)){
                 return true;    
             }
             break;
@@ -454,7 +467,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     while (uli > -1 && ulj > -1){//up left
         let piece = board[uli][ulj];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === BISHOP || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -467,7 +480,7 @@ export function isPositionInCheck(board: Board, turn: string, row: number, col: 
     while (dri < NUM_ROWS && drj < NUM_COLS){//down right
         let piece = board[dri][drj];
         if (piece){//collided with a piece
-            if (piece.color !== turn && (piece.type === 'b' || piece.type === 'q')){
+            if (piece.color !== turn && (piece.type === BISHOP || piece.type === QUEEN)){
                 return true;
             }
             break;
@@ -490,7 +503,7 @@ export function wouldMovePutKingInCheck(originalBoard: Board, turn: string, star
 
     //castling?
     let king = originalBoard[startRow][startCol];
-    if (king && king.type === 'k' && Math.abs(startCol - endCol) === 2){
+    if (king && king.type === KING && Math.abs(startCol - endCol) === 2){
         //check if king already in check
         if (isPositionInCheck(originalBoard, turn, startRow, startCol)){
             return true;
@@ -519,7 +532,7 @@ export function hasValidMoves(board: Board, turn: string, lastMovedRow: number, 
                 let moves2d = generateMoves(board, lastMovedRow, lastMovedCol, startRow, startCol);
                 for (let i = 0; i < moves2d.length; i++){
                     let [endRow, endCol] = moves2d[i];
-                    //if move doesn't put king in check, then valid move
+                    //if move does not put king in check, then valid move
                     if (!wouldMovePutKingInCheck(board, turn, startRow, startCol, endRow, endCol)){
                         return true;
                     }
@@ -534,6 +547,7 @@ export function generateFen(board: Board, turn: string, fullMoveClock: number, l
     //turn board to fen string
     let fenBoardArr = [];
     let count = 0;//count consecutive empty squares
+    const NO_CASTLING_RIGHTS = '--';
     for (let i = 0; i < NUM_ROWS; i++){
         let fenRow = '';
         count = 0;
@@ -558,38 +572,38 @@ export function generateFen(board: Board, turn: string, fullMoveClock: number, l
     let castlingRights = '';
     //white castling rights
     let whiteKing = board[7][4];
-    if (whiteKing && whiteKing.type === 'k' && whiteKing.color === 'w' && whiteKing.timesMoved === 0){
+    if (whiteKing && whiteKing.type === KING && whiteKing.color === WHITE && whiteKing.timesMoved === 0){
         let rightWhiteRook = board[7][7];
-        if (rightWhiteRook && rightWhiteRook.type === 'r' && rightWhiteRook.color === 'w' && rightWhiteRook.timesMoved === 0){
-            castlingRights += 'K';
+        if (rightWhiteRook && rightWhiteRook.type === ROOK && rightWhiteRook.color === WHITE && rightWhiteRook.timesMoved === 0){
+            castlingRights += KING.toUpperCase();
         }
         let leftWhiteRook = board[7][0];
-        if (leftWhiteRook && leftWhiteRook.type === 'r' && leftWhiteRook.color === 'w' && leftWhiteRook.timesMoved === 0){
-            castlingRights += 'Q';
+        if (leftWhiteRook && leftWhiteRook.type === ROOK && leftWhiteRook.color === WHITE && leftWhiteRook.timesMoved === 0){
+            castlingRights += QUEEN.toUpperCase();
         }
     }else{
-        castlingRights += '--';
+        castlingRights += NO_CASTLING_RIGHTS;
     }
     //black castling rights
     let blackKing = board[0][4];
-    if (blackKing && blackKing.type === 'k' && blackKing.color === 'b' && blackKing.timesMoved === 0){
+    if (blackKing && blackKing.type === KING && blackKing.color === BLACK && blackKing.timesMoved === 0){
         let rightBlackRook = board[0][7];
-        if (rightBlackRook && rightBlackRook.type === 'r' && rightBlackRook.color === 'b' && rightBlackRook.timesMoved === 0){
-            castlingRights += 'k';
+        if (rightBlackRook && rightBlackRook.type === ROOK && rightBlackRook.color === BLACK && rightBlackRook.timesMoved === 0){
+            castlingRights += KING.toLowerCase();
         }
         let leftBlackRook = board[0][0];
-        if (leftBlackRook && leftBlackRook.type === 'r' && leftBlackRook.color === 'b' && leftBlackRook.timesMoved === 0){
-            castlingRights += 'q';
+        if (leftBlackRook && leftBlackRook.type === ROOK && leftBlackRook.color === BLACK && leftBlackRook.timesMoved === 0){
+            castlingRights += QUEEN.toLowerCase();
         }
     }else{
-        castlingRights += '--';
+        castlingRights += NO_CASTLING_RIGHTS;
     }
     //en passant square
     let en = '-';
     let lastMovedPiece = lastMovedRow && lastMovedCol ? board[lastMovedRow][lastMovedCol] : null;
-    if (lastMovedPiece && lastMovedPiece.color !== turn && lastMovedPiece.type === 'p' && //enemy pawn
+    if (lastMovedPiece && lastMovedPiece.color !== turn && lastMovedPiece.type === PAWN && //enemy pawn
         lastMovedPiece.timesMoved === 1 && 
-        ((lastMovedPiece.color === 'w' && lastMovedRow === 4) || (lastMovedPiece.color === 'b' && lastMovedRow === 3))
+        ((lastMovedPiece.color === WHITE && lastMovedRow === 4) || (lastMovedPiece.color === BLACK && lastMovedRow === 3))
     ){
         en = coordsToSan(lastMovedRow, lastMovedCol);
     }

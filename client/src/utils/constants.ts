@@ -2,6 +2,13 @@ export const WHITE = 'w';
 export const BLACK = 'b';
 export const RANDOM = 'r';
 
+export const BISHOP = 'b';
+export const KING = 'k';
+export const KNIGHT = 'n';
+export const PAWN = 'p';
+export const QUEEN = 'q';
+export const ROOK = 'r';
+
 export const NUM_ROWS = 8;
 export const NUM_COLS = 8;
 

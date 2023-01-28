@@ -6,13 +6,11 @@ import { useLocation, } from 'react-router-dom';
 //utils
 import * as Chess from '../../utils/chess';
 import { indexToCoords, sanToIndex, coordsToIndex } from '../../utils/coords';
-import { WHITE, BLACK, EMPTY_SQUARE, NUM_COLS } from '../../utils/constants';
+import { WHITE, BLACK, EMPTY_SQUARE } from '../../utils/constants';
 //components
-import PlayerCard from '../PlayerCard/PlayerCard';
 import Board from '../Board/Board';
 import PawnPromotion from '../PawnPromotion/PawnPromotion';
 
-// TODO: generic turncolor function
 const colorAsText = (turn: string) => turn === WHITE ? 'White' : 'Black';
 
 let worker: Worker | null = null;
@@ -198,7 +196,6 @@ const Game = () => {
     return(
         <div className='Game'>
             <h2 style={{'margin': '0 auto'}}>{ `${message}`}</h2>
-            <PlayerCard name={isPlayerOnTop ? 'Me' : 'Computer'} />
             <Board
                 disabled={player !== turn || !isAtCurrentBoard || isGameOver}
                 board={boards[boardIndex]}
@@ -218,8 +215,7 @@ const Game = () => {
                         if (!Chess.wouldMovePutKingInCheck(board, player, selectedRow, selectedCol, destinationRow, destinationCol)){
                             //if pawn promotion...
                             //console.log(`symbol ${symbol}, iswhite ${isPlayerWhite}, index ${index}`)
-                            let isSelectedAPawn = selected !== -1 && boards[boardIndex].charAt(selected).toLowerCase() === 'p';
-                            if (isSelectedAPawn && ((isPlayerWhite && index < NUM_COLS)||(!isPlayerWhite && index > 55))){
+                            if (Chess.shouldPromotePawn(board, player, selectedRow, selectedCol, destinationRow, destinationCol)){
                                 setPawnPromotionPopupIndex(index);
                             }else{
                                 concludeTurn(selected, index, '');
@@ -255,7 +251,6 @@ const Game = () => {
                     }
                 }}
             />
-            <PlayerCard name={isPlayerOnTop ? 'Computer' : 'Me'} />
             <div className='Board-actions'>
                 <button 
                     className='Board-button'
