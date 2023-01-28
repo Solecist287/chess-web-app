@@ -1,7 +1,7 @@
 // types
 import { Piece } from './chess';
 //constants
-import { NUM_ROWS, NUM_COLS, FILES, RANKS, EMPTY_SQUARE } from './constants';
+import { WHITE, NUM_ROWS, NUM_COLS, FILES, RANKS, EMPTY_SQUARE } from './constants';
 
 //algebraic notation to [row, col]
 export function sanToCoords(san: string){
@@ -42,7 +42,7 @@ export function pieceToChar(piece: Piece | null){
         return EMPTY_SQUARE;
     }
     let char = piece.type;
-    if (piece.color === 'w'){
+    if (piece.color === WHITE){
         return char.toUpperCase();
     }
     return char;

@@ -2,7 +2,7 @@
 import React from 'react';
 import './PawnPromotion.css';
 //utils
-import imageRouter from '../../utils/constants';
+import imageRouter, { WHITE } from '../../utils/constants';
 
 type PawnPromotionProps = {
     color: string;
@@ -14,7 +14,7 @@ const PawnPromotion = (props: PawnPromotionProps) => {
     const { color, promote, } = props;
 
     let images = Object.keys(imageRouter).filter(key => {
-        return color === 'w' 
+        return color === WHITE 
             ? key === key.toUpperCase() && key !== 'K' && key !== 'P'
             : key === key.toLowerCase() && key !== 'k' && key !== 'p'
     });

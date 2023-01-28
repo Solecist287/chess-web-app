@@ -1,11 +1,15 @@
 // react
 import React, { useState } from 'react';
 import './App.css';
-//components
+// components
 import{ Link } from "react-router-dom";
+// utils
+import { WHITE, BLACK, RANDOM } from '../../utils/constants';
+
+const randomColor = () => [WHITE, BLACK][Math.floor(Math.random() * 2)];
 
 const App = () => {
-    const [startingColor, setStartingColor] = useState('w');
+    const [startingColor, setStartingColor] = useState(WHITE);
     const [showLegalMoves, setShowLegalMoves] = useState(true);
 
     return (
@@ -24,9 +28,8 @@ const App = () => {
                                 <input
                                     type="radio"
                                     name="White"
-                                    value={'w'}
-                                    checked={startingColor === 'w'}
-                                    onChange={() => setStartingColor('w')}
+                                    checked={startingColor === WHITE}
+                                    onChange={() => setStartingColor(WHITE)}
                                 />
                                 White
                             </label>
@@ -34,9 +37,8 @@ const App = () => {
                                 <input
                                     type="radio"
                                     name="Black"
-                                    value={'b'}
-                                    checked={startingColor === 'b'}
-                                    onChange={() => setStartingColor('b')}
+                                    checked={startingColor === BLACK}
+                                    onChange={() => setStartingColor(BLACK)}
                                 />
                                 Black
                             </label>
@@ -44,9 +46,8 @@ const App = () => {
                                 <input
                                     type="radio"
                                     name="Random"
-                                    value={'r'}
-                                    checked={startingColor === 'r'}
-                                    onChange={() => setStartingColor('r')}
+                                    checked={startingColor === RANDOM}
+                                    onChange={() => setStartingColor(RANDOM)}
                                 />
                                 Random
                             </label>
@@ -74,7 +75,7 @@ const App = () => {
                 type='button'
                 to={{pathname: '/game'}}
                 state={{
-                    player: startingColor === 'r' ? ['w', 'b'][Math.floor(Math.random() * 2)] : startingColor,
+                    player: startingColor === RANDOM ? randomColor() : startingColor,
                     showLegalMoves: showLegalMoves
                 }}
             >

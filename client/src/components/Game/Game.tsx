@@ -6,14 +6,14 @@ import { useLocation, } from 'react-router-dom';
 //utils
 import * as Chess from '../../utils/chess';
 import { indexToCoords, sanToIndex, coordsToIndex } from '../../utils/coords';
-import { EMPTY_SQUARE, NUM_COLS } from '../../utils/constants';
+import { WHITE, BLACK, EMPTY_SQUARE, NUM_COLS } from '../../utils/constants';
 //components
 import PlayerCard from '../PlayerCard/PlayerCard';
 import Board from '../Board/Board';
 import PawnPromotion from '../PawnPromotion/PawnPromotion';
 
-//TODO: generic turncolor function
-const colorAsText = (turn: string) => turn === 'w' ? 'White' : 'Black';
+// TODO: generic turncolor function
+const colorAsText = (turn: string) => turn === WHITE ? 'White' : 'Black';
 
 let worker: Worker | null = null;
 let INITIAL_BOARD = Chess.createInitialBoard();
@@ -29,22 +29,22 @@ const Game = () => {
     //game parameters from url
     const location = useLocation();
     const {
-        player = 'w',
+        player = WHITE,
         showLegalMoves = true,
     } = location.state as LocationParams;
 
     const [gameState, setGameState] = useState({
         board: INITIAL_BOARD, //2d array of Piece objs
-        turn: 'w',
+        turn: WHITE,
         selected: -1,//piece to move
         lastMoved: -1,
-        isBoardReversed: player === 'b' ? true : false,
+        isBoardReversed: player === BLACK ? true : false,
         legalMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [Chess.boardToString(INITIAL_BOARD)],//list of board strings i.e. arr[64], uses boardIndex
         boardMoves: [{}],//list of movemaps, uses boardIndex
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
         fullMoveClock: 1,
-        message: `${player === 'w' ? 'Your' : `Computer's`} turn, ${colorAsText('w')}`,
+        message: `${player === WHITE ? 'Your' : `Computer's`} turn, ${colorAsText(WHITE)}`,
         isGameOver: false,
         warningMap: {},
     });
@@ -138,10 +138,10 @@ const Game = () => {
             nextBoardMoveMap[selected] = selected;
             nextBoardMoveMap[destination] = destination;
 
-            const nextTurn = prevGameState.turn === 'w' ? 'b' : 'w';
+            const nextTurn = prevGameState.turn === WHITE ? BLACK : WHITE;
             console.log(`now: ${prevGameState.turn}, next: ${nextTurn}`);
             //increment full move clock when black concludes turn
-            let nextFullMoveClock = prevGameState.turn === 'b' ? prevGameState.fullMoveClock + 1 : prevGameState.fullMoveClock;
+            let nextFullMoveClock = prevGameState.turn === BLACK ? prevGameState.fullMoveClock + 1 : prevGameState.fullMoveClock;
 
             let isKingInCheck = Chess.isKingInCheck(nextBoard, nextTurn);
             let currentColorText = colorAsText(prevGameState.turn);
@@ -191,7 +191,7 @@ const Game = () => {
         });
     }
 
-    const isPlayerOnTop = (player === 'b' && !isBoardReversed) || (player === 'w' && isBoardReversed);
+    const isPlayerOnTop = (player === BLACK && !isBoardReversed) || (player === WHITE && isBoardReversed);
 
     const isAtCurrentBoard = Boolean(boardIndex === boards.length - 1);
 
@@ -209,7 +209,7 @@ const Game = () => {
                 warningMap={isAtCurrentBoard ? warningMap : {}}
                 onSelection={(index: number , symbol: string) => {
                     if (index === selected) {return;}
-                    let isPlayerWhite = player === 'w';
+                    let isPlayerWhite = player === WHITE;
                     let isSymbolUpperCase = symbol === symbol.toUpperCase();
                     //if move is in movemap
                     if (index in legalMoveMap){
