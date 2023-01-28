@@ -66,7 +66,7 @@ const Game = () => {
     } = gameState;
 
     //pawn promotion popu: 0 should be safe value, initial value chosen due being falsy
-    const [pawnPromotionPopupIndex, setPawnPromotionPopupIndex] = useState(0);
+    const [pawnPromotionPopupIndex, setPawnPromotionPopupIndex] = useState(-1);
    
     //didmount (set stockfish listener) and didupdate (game state changes)
     useEffect(() => {
@@ -132,7 +132,7 @@ const Game = () => {
             let nextBoard = Chess.pushMove(prevGameState.board, selectedRow, selectedCol, destinationRow, destinationCol);
             if (promotion){
                 nextBoard = Chess.pushPawnPromotion(nextBoard, destinationRow, destinationCol, promotion);
-                setPawnPromotionPopupIndex(0);
+                setPawnPromotionPopupIndex(-1);
             }
             const nextBoardMoveMap : { [key: string]: number } = {};
             nextBoardMoveMap[selected] = selected;
@@ -298,7 +298,7 @@ const Game = () => {
                 </button>
             </div>
             
-            {Boolean(pawnPromotionPopupIndex) && (
+            {Boolean(pawnPromotionPopupIndex !== -1) && (
                 <PawnPromotion
                     color={turn} 
                     promote={(promotion: string) => concludeTurn(selected, pawnPromotionPopupIndex, promotion)}
