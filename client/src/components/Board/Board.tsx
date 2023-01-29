@@ -41,11 +41,15 @@ const Board = (props: BoardProps) => {
     let selectedOriented = isReversed && selected !== -1 ? invertIndex(selected) : selected;
 
     let boardOriented: string[] = [];
+    console.log('board');
+    console.log(board);
     if (board && board.length){
         let boardArr = board.split('');
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
+    
     }
-
+    console.log('boardOriented')
+    console.log(boardOriented)
     let lastMoveMapOriented: { [key: string]: number } = {};
     let legalMoveMapOriented: { [key: string]: number } = {};
     let warningMapOriented: { [key: string]: number } = {};
@@ -71,22 +75,23 @@ const Board = (props: BoardProps) => {
     return(
         <div className='Board'>
             {boardOriented.map((symbol, index) => {
+                console.log(`symbol ${symbol}, index: ${index}`)
                 let [row, col] = indexToCoords(index);
                 let rank = ranks[row];
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
                 let backgroundColorMode = 
-                    index === selectedOriented || index in legalMoveMapOriented ? 'selected' : 
-                    index in lastMoveMapOriented ? 'previous-selected' :
-                    isLightSquare ? 'light' : 
-                    'dark';
+                    index === selectedOriented || index in legalMoveMapOriented ? 'Selected' : 
+                    index in lastMoveMapOriented ? 'Previous-selected' :
+                    isLightSquare ? 'Light' : 
+                    'Dark';
                 let hasOutline = Boolean(index in warningMapOriented);
                 let absoluteIndex = isReversed ? invertIndex(index) : index;//right side up
                 return (
                     <Fragment key={`${rank}-${file}`}>
                         <Tile
                             backgroundColorMode={backgroundColorMode}
-                            outlineMode={hasOutline ? 'outlined' : ''}
+                            outlineMode={hasOutline ? 'Outlined' : ''}
                             symbol={symbol}
                             onClick={() => {
                                 if (!disabled){//is enabled when it's your turn

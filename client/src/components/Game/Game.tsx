@@ -30,7 +30,8 @@ const Game = () => {
         player = WHITE,
         showLegalMoves = true,
     } = location.state as LocationParams;
-
+    console.log(`player: ${player}`);
+    console.log(`showLegalMoves: ${showLegalMoves}`);
     const [gameState, setGameState] = useState({
         board: INITIAL_BOARD, //2d array of Piece objs
         turn: WHITE,

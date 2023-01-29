@@ -1,20 +1,20 @@
-.dark {
+.Dark {
     background-color: #606060;
 }
 
-.light {
+.Light {
     background-color: #ADADAD;
 }
 
-.outlined {
+.Outlined {
     outline: red solid;
 }
 
-.selected {
+.Selected {
     background-color: #72FCF1;
 }
 
-.previous-selected {
+.Previous-selected {
     background-color: #b19cd9;   
 }
 
