@@ -1,6 +1,8 @@
 // react
 import React, { useState } from 'react';
 import './App.css';
+// hooks
+import { useNavigate } from "react-router-dom";
 // components
 import{ Link } from "react-router-dom";
 // utils
@@ -11,7 +13,7 @@ const randomColor = () => [WHITE, BLACK][Math.floor(Math.random() * 2)];
 const App = () => {
     const [startingColor, setStartingColor] = useState(WHITE);
     const [showLegalMoves, setShowLegalMoves] = useState(true);
-
+    const navigate = useNavigate();
     return (
         <form className='App'>
             <h1 className='Title'>
@@ -69,18 +71,15 @@ const App = () => {
                 </tr>
             </table>
 
-            <Link
+            <button
                 className='Start-game-button'
-                role='button'
-                type='button'
-                to={{pathname: '/game'}}
-                state={{
+                onClick={() => navigate('/game', {state: {
                     player: startingColor === RANDOM ? randomColor() : startingColor,
                     showLegalMoves: showLegalMoves
-                }}
+                }})}
             >
                 Start game
-            </Link>
+            </button>
         </form>
     );
 }
