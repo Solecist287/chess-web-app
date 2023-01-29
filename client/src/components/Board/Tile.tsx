@@ -24,13 +24,7 @@ const Tile = (props: TileProps) => {
             className={['Square', backgroundColorMode, outlineMode].join(' ')}
             onClick={onClick}
         >
-            <div className='Content'>
-                <div className='Table'>
-                    <div className='Table-cell'>
-                        <img className='Image' src={imageRouter[symbol]}/>
-                    </div>
-                </div>
-            </div>
+            <img className='Image' src={imageRouter[symbol]}/>
         </div>
     );
 }

@@ -30,17 +30,17 @@ const blackRook = require('../assets/blackRook.png');
 const whiteRook = require('../assets/whiteRook.png');
 
 const imageRouter: { [key: string]: string } = {
-    'b': blackBishop,
-    'B': whiteBishop,
-    'k': blackKing,
-    'K': whiteKing,
-    'n': blackKnight,
-    'N': whiteKnight,
-    'p': blackPawn,
-    'P': whitePawn,
-    'q': blackQueen,
-    'Q': whiteQueen,
-    'r': blackRook,
-    'R': whiteRook,
+    'b': String(blackBishop),
+    'B': String(whiteBishop),
+    'k': String(blackKing),
+    'K': String(whiteKing),
+    'n': String(blackKnight),
+    'N': String(whiteKnight),
+    'p': String(blackPawn),
+    'P': String(whitePawn),
+    'q': String(blackQueen),
+    'Q': String(whiteQueen),
+    'r': String(blackRook),
+    'R': String(whiteRook),
 }
 export default imageRouter;
