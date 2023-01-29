@@ -28,6 +28,7 @@ const blackQueen = require('../assets/blackQueen.png');
 const whiteQueen = require('../assets/whiteQueen.png');
 const blackRook = require('../assets/blackRook.png');
 const whiteRook = require('../assets/whiteRook.png');
+const emptySquare = require('../assets/emptySquare.png');
 
 const imageRouter: { [key: string]: string } = {
     'b': String(blackBishop),
@@ -42,5 +43,6 @@ const imageRouter: { [key: string]: string } = {
     'Q': String(whiteQueen),
     'r': String(blackRook),
     'R': String(whiteRook),
+    EMPTY_SQUARE: String(emptySquare)
 }
 export default imageRouter;

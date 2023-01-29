@@ -73,7 +73,7 @@ const Board = (props: BoardProps) => {
     }
 
     return(
-        <div className='Board'>
+        <div className='Chessboard-grid'>
             {boardOriented.map((symbol, index) => {
                 console.log(`symbol ${symbol}, index: ${index}`)
                 let [row, col] = indexToCoords(index);

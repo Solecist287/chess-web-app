@@ -2,7 +2,7 @@
 import React from 'react';
 import './Tile.css';
 //utils
-import imageRouter from '../../utils/constants';
+import imageRouter, { EMPTY_SQUARE } from '../../utils/constants';
 
 type TileProps = {
     backgroundColorMode: string;
@@ -22,9 +22,8 @@ const Tile = (props: TileProps) => {
     return (
         <div 
             className={['Square', backgroundColorMode, outlineMode].join(' ')}
-            onClick={onClick}
-        >
-            <img className='Image' src={imageRouter[symbol]}/>
+            onClick={onClick}>
+            <img className='Image' src={imageRouter[symbol]} />
         </div>
     );
 }

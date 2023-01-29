@@ -1,8 +1,7 @@
-.Board {
+.Chessboard-grid {
     display: grid;
     grid-template-columns: repeat(8,12fr);
     grid-template-rows: repeat(8,12fr);
-    gap: 1px;
     margin: 0 auto;
     width: min(80vh, 80vw);
 }
