@@ -5,11 +5,12 @@
 ## Get started
 ### Clone this repo
 `git clone https://github.com/Solecist287/chess-web-app.git`
-### Install dependencies for frontend and server
-`cd frontend`
-`npm install`
-`cd ..`
-`cd server`
+### Install dependencies
+#### Node version manager
+[nvm - windows](https://github.com/coreybutler/nvm-windows)
+[nvm - other](https://github.com/nvm-sh/nvm)
+
+#### Frontend and server
 `npm install`
 ### Concurrently run express server and frontend
 `cd server/`
