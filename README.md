@@ -3,16 +3,20 @@
 ### This is a web application that lets you play against the Stockfish chess engine
 ---
 ## Get started
-Clone this repo
+### Clone this repo
 `git clone https://github.com/Solecist287/chess-web-app.git`
-Install dependencies for frontend and server
+### Install dependencies for frontend and server
+`cd frontend`
 `npm install`
-Concurrently run express server and frontend
+`cd ..`
+`cd server`
+`npm install`
+### Concurrently run express server and frontend
 `cd server/`
 `npm run dev`
-Open in desired browser at a port number of your choice
-`localhost:[port-no]`
-Choose your desired settings and start the game!
+### Open in desired browser at a port number of your choice (default is 8080)
+`localhost:8080`
+### Choose your desired settings and start the game!
 ---
 ## Tech stack
 ### This project uses:
