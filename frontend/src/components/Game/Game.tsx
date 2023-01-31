@@ -30,8 +30,6 @@ const Game = () => {
         player = WHITE,
         showLegalMoves = true,
     } = location.state as LocationParams;
-    console.log(`player: ${player}`);
-    console.log(`showLegalMoves: ${showLegalMoves}`);
     const [gameState, setGameState] = useState({
         board: INITIAL_BOARD, //2d array of Piece objs
         turn: WHITE,
@@ -123,7 +121,7 @@ const Game = () => {
 
     //increment/reset state, set game state flags for next turn
     const concludeTurn = (selected: number, destination: number, promotion='') => {
-        console.log(`sel: ${selected}, dest: ${destination}, promotion: ${promotion}`)
+        // console.log(`sel: ${selected}, dest: ${destination}, promotion: ${promotion}`)
         let [selectedRow, selectedCol] = indexToCoords(selected);
         let [destinationRow, destinationCol] = indexToCoords(destination);
         
@@ -138,7 +136,7 @@ const Game = () => {
             nextBoardMoveMap[destination] = destination;
 
             const nextTurn = prevGameState.turn === WHITE ? BLACK : WHITE;
-            console.log(`now: ${prevGameState.turn}, next: ${nextTurn}`);
+            // console.log(`now: ${prevGameState.turn}, next: ${nextTurn}`);
             //increment full move clock when black concludes turn
             let nextFullMoveClock = prevGameState.turn === BLACK ? prevGameState.fullMoveClock + 1 : prevGameState.fullMoveClock;
 

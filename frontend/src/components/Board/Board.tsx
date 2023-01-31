@@ -5,7 +5,7 @@ import './Board.css';
 import { indexToCoords } from '../../utils/coords';
 import { RANKS, FILES, NUM_ROWS, NUM_COLS } from '../../utils/constants';
 //components
-import Tile from './Tile';
+import Tile from '../Tile/Tile';
 
 function invertIndex(index: number){
     return Math.abs(index - (NUM_COLS * NUM_ROWS - 1));
@@ -41,15 +41,11 @@ const Board = (props: BoardProps) => {
     let selectedOriented = isReversed && selected !== -1 ? invertIndex(selected) : selected;
 
     let boardOriented: string[] = [];
-    console.log('board');
-    console.log(board);
     if (board && board.length){
         let boardArr = board.split('');
         boardOriented = isReversed ? boardArr.reverse(): boardArr;
     
     }
-    console.log('boardOriented')
-    console.log(boardOriented)
     let lastMoveMapOriented: { [key: string]: number } = {};
     let legalMoveMapOriented: { [key: string]: number } = {};
     let warningMapOriented: { [key: string]: number } = {};
@@ -73,9 +69,9 @@ const Board = (props: BoardProps) => {
     }
 
     return(
-        <div className='Chessboard-grid'>
+        <div className='Board'>
             {boardOriented.map((symbol, index) => {
-                console.log(`symbol ${symbol}, index: ${index}`)
+                // console.log(`symbol ${symbol}, index: ${index}`)
                 let [row, col] = indexToCoords(index);
                 let rank = ranks[row];
                 let file = files[col];
