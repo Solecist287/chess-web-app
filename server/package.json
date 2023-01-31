@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "server": "node index.js",
-    "client": "npm start --prefix \"../client\"",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "frontend": "npm start --prefix \"../frontend\"",
+    "dev": "concurrently \"npm run server\" \"npm run frontend\""
   },
   "keywords": [],
   "author": "",
