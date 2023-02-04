@@ -4,19 +4,27 @@
 ---
 ## Get started
 ### Clone this repo
-`git clone https://github.com/Solecist287/chess-web-app.git`
+```
+git clone https://github.com/Solecist287/chess-web-app.git
+```
+
 ### Install dependencies
 #### Node version manager
 [nvm - windows](https://github.com/coreybutler/nvm-windows)
 [nvm - other](https://github.com/nvm-sh/nvm)
 
 #### Frontend and server
-`npm install`
+```
+npm install
+```
 ### Concurrently run express server and frontend
-`cd server/`
-`npm run dev`
+```
+cd server && npm run dev
+```
 ### Open in desired browser at a port number of your choice (default is 8080)
-`localhost:8080`
+```
+localhost:8080
+```
 ### Choose your desired settings and start the game!
 ---
 ## Tech stack
