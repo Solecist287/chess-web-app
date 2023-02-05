@@ -13,13 +13,13 @@ git clone https://github.com/Solecist287/chess-web-app.git
 [nvm - windows](https://github.com/coreybutler/nvm-windows)
 [nvm - other](https://github.com/nvm-sh/nvm)
 
-#### Frontend and server
+#### Frontend and backend dependencies
 ```
 npm install
 ```
-### Concurrently run express server and frontend
+### Concurrently run frontend and backend in /server/
 ```
-cd server && npm run dev
+npm run dev
 ```
 ### Open in desired browser at a port number of your choice (default is 8080)
 ```

@@ -72,10 +72,16 @@ const Game = () => {
             console.log('ask robot')
             const [lastMovedRow, lastMovedCol] = indexToCoords(lastMoved);
             let fen = Chess.generateFen(board, turn, fullMoveClock, lastMovedRow, lastMovedCol);
-            if (worker){
-                worker.postMessage(`position fen ${fen}`);
-                worker.postMessage('go movetime 1000');
-            }
+            let endpoint = `http://localhost:8080/engine/fen/${encodeURIComponent(fen)}`;
+            fetch(endpoint)
+            .then(res => res.json())
+            .then(json => {
+                let sanMove = json['sanMove'];
+                let selectedSan = sanMove.substring(0,2);
+                let destinationSan = sanMove.substring(2,4);
+                let promotion = sanMove.charAt(4);
+                concludeTurn(sanToIndex(selectedSan), sanToIndex(destinationSan), promotion);
+            })
             //worker.postMessage('stop');
         }
     }, [gameState, isEngineReady]);
@@ -83,41 +89,18 @@ const Game = () => {
     //unmount for removing stockfish listener
     useEffect(() => {
         console.log('mount');
-        worker = new Worker(`${process.env.PUBLIC_URL}/stockfish.js`)
-        //mount: setup comms with stockfish engine
-        window.addEventListener('message', relayEngineResponse);
-        worker.onmessage = function(oEvent) {
-            //console.log('Worker said : ' + oEvent.data);
-            let tokens = oEvent.data.split(' ');
-            if (tokens[0] === 'bestmove'){
-                postMessage(tokens[1]);
-            }else if (tokens[0] === 'readyok'){
-                setIsEngineReady(true);
+        fetch('http://localhost:8080/engine/new-game')
+        .then(res => res.json())
+        .then(json => {
+            if (json['status'] === 'readyok'){
+               setIsEngineReady(true) 
             }
-        };
-        worker.postMessage('uci');
-        worker.postMessage('ucinewgame');
-        worker.postMessage('isready');
-        
-        return () => {
-            console.log('cleanup');
-            window.removeEventListener('message', relayEngineResponse);
-            if (worker){
-                worker.terminate();
-            }
-        }
+        })
+        .catch(err => {
+            console.log(err);
+            setIsEngineReady(false);
+        });
     }, []);
-
-    const relayEngineResponse = (oEvent: { data: string; }) => {
-        console.log(oEvent.data);
-        //console.log(typeof oEvent.data);
-        if (typeof oEvent.data === 'string'){
-            let selectedSan = String(oEvent.data).substring(0,2);
-            let destinationSan = String(oEvent.data).substring(2,4);
-            let promotion = String(oEvent.data).charAt(4);
-            concludeTurn(sanToIndex(selectedSan), sanToIndex(destinationSan), promotion)
-        }
-    }
 
     //increment/reset state, set game state flags for next turn
     const concludeTurn = (selected: number, destination: number, promotion='') => {
