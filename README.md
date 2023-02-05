@@ -31,9 +31,9 @@ localhost:8080
 ### This project uses:
 - [React JavaScript library](https://reactjs.org/) to build its user interface and do client-side routing
 
-- [Web Workers API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API) to create a background thread that runs the Stockfish engine in tandem with the main application thread
+- [Express Node.js framework](https://expressjs.com/) to serve the frontend build along with Stockfish related requests
 
-- [Stockfish.js](https://github.com/exoticorn/stockfish-js) emscripten port of the aforementioned engine which was designed to be run in a web worker
+- [Stockfish.js](https://github.com/nmrugg/stockfish.js) to use the aforementioned chess engine in JavaScript
 ---
 ## Thanks!
 Thank you for checking out this project. I had a lot of fun making this project and hope you try it out!
