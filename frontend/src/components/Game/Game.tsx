@@ -13,7 +13,6 @@ import PawnPromotion from '../PawnPromotion/PawnPromotion';
 
 const colorAsText = (turn: string) => turn === WHITE ? 'White' : 'Black';
 
-let worker: Worker | null = null;
 let INITIAL_BOARD = Chess.createInitialBoard();
 
 type LocationParams = {
@@ -82,7 +81,6 @@ const Game = () => {
                 let promotion = sanMove.charAt(4);
                 concludeTurn(sanToIndex(selectedSan), sanToIndex(destinationSan), promotion);
             })
-            //worker.postMessage('stop');
         }
     }, [gameState, isEngineReady]);
 
