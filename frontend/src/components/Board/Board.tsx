@@ -17,7 +17,7 @@ type BoardProps = {
     isReversed: boolean;
     selected: number;
     lastMoveMap: { [key: string]: number };
-    legalMoveMap: { [key: string]: number };
+    pseudoLegalMoveMap: { [key: string]: number };
     warningMap: { [key: string]: number };
     onSelection: (index: number , symbol: string) => void;
 };
@@ -30,7 +30,7 @@ const Board = (props: BoardProps) => {
         board, 
         isReversed, 
         lastMoveMap,
-        legalMoveMap,
+        pseudoLegalMoveMap,
         warningMap,
         onSelection,
     } = props;
@@ -47,16 +47,16 @@ const Board = (props: BoardProps) => {
     
     }
     let lastMoveMapOriented: { [key: string]: number } = {};
-    let legalMoveMapOriented: { [key: string]: number } = {};
+    let pseudoLegalMoveMapOriented: { [key: string]: number } = {};
     let warningMapOriented: { [key: string]: number } = {};
     if (isReversed){
         Object.keys(lastMoveMap).forEach(key => {
             let flippedIndex = invertIndex(lastMoveMap[key]);
             lastMoveMapOriented[flippedIndex] = flippedIndex;
         });
-        Object.keys(legalMoveMap).forEach(key => {
-            let flippedIndex = invertIndex(legalMoveMap[key]);
-            legalMoveMapOriented[flippedIndex] = flippedIndex;
+        Object.keys(pseudoLegalMoveMap).forEach(key => {
+            let flippedIndex = invertIndex(pseudoLegalMoveMap[key]);
+            pseudoLegalMoveMapOriented[flippedIndex] = flippedIndex;
         });
         Object.keys(warningMap).forEach(key => {
             let flippedIndex = invertIndex(warningMap[key]);
@@ -64,7 +64,7 @@ const Board = (props: BoardProps) => {
         });
     }else{
         lastMoveMapOriented = lastMoveMap;
-        legalMoveMapOriented = legalMoveMap;
+        pseudoLegalMoveMapOriented = pseudoLegalMoveMap;
         warningMapOriented = warningMap;
     }
 
@@ -77,7 +77,7 @@ const Board = (props: BoardProps) => {
                 let file = files[col];
                 let isLightSquare = Boolean(row % 2 === col % 2);
                 let backgroundColorMode = 
-                    index === selectedOriented || index in legalMoveMapOriented ? 'Selected' : 
+                    index === selectedOriented || index in pseudoLegalMoveMapOriented ? 'Selected' : 
                     index in lastMoveMapOriented ? 'Previous-selected' :
                     isLightSquare ? 'Light' : 
                     'Dark';

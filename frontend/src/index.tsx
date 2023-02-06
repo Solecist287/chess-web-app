@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
-    path: '/game',
+    path: '/game/:player/:showPseudoLegalMoves',
     element: <Game /> 
   }
 ]);

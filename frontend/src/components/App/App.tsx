@@ -12,7 +12,7 @@ const randomColor = () => [WHITE, BLACK][Math.floor(Math.random() * 2)];
 
 const App = () => {
     const [startingColor, setStartingColor] = useState(WHITE);
-    const [showLegalMoves, setShowLegalMoves] = useState(true);
+    const [showPseudoLegalMoves, setShowPseudoLegalMoves] = useState(true);
     const navigate = useNavigate();
     return (
         <form className='App'>
@@ -64,8 +64,8 @@ const App = () => {
                     <td>
                         <input 
                             type='checkbox'
-                            checked={showLegalMoves}
-                            onChange={() => setShowLegalMoves(!showLegalMoves)}
+                            checked={showPseudoLegalMoves}
+                            onChange={() => setShowPseudoLegalMoves(!showPseudoLegalMoves)}
                         />
                     </td>
                 </tr>
@@ -73,10 +73,11 @@ const App = () => {
 
             <button
                 className='Start-game-button'
-                onClick={() => navigate('/game', {state: {
-                    player: startingColor === RANDOM ? randomColor() : startingColor,
-                    showLegalMoves: showLegalMoves
-                }})}
+                onClick={() => {
+                    const player = startingColor === RANDOM ? randomColor() : startingColor;
+                    const showMoves = showPseudoLegalMoves ? 'show-moves' : 'hide-moves';
+                    navigate(`/game/${player}/${showMoves}`);
+                }}
             >
                 Start game
             </button>

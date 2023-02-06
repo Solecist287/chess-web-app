@@ -7,7 +7,8 @@
 }
 
 .Outlined {
-    outline: red solid;
+    outline: 1px red solid;
+    outline-offset: -1px;
 }
 
 .Selected {

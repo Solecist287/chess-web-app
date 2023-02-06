@@ -2,7 +2,7 @@
 import React, { useState, useEffect, } from 'react';
 import './Game.css';
 //hooks
-import { useLocation, } from 'react-router-dom';
+import { useParams, } from 'react-router-dom';
 //utils
 import * as Chess from '../../utils/chess';
 import { indexToCoords, sanToIndex, coordsToIndex } from '../../utils/coords';
@@ -15,27 +15,22 @@ const colorAsText = (turn: string) => turn === WHITE ? 'White' : 'Black';
 
 let INITIAL_BOARD = Chess.createInitialBoard();
 
-type LocationParams = {
-    player: string;
-    showLegalMoves: boolean;
-};
-
 const Game = () => {
     //status of chess engine
     const [isEngineReady, setIsEngineReady] = useState(false);
     //game parameters from url
-    const location = useLocation();
     const {
         player = WHITE,
-        showLegalMoves = true,
-    } = location.state as LocationParams;
+        showPseudoLegalMoves = 'show-moves',
+    } = useParams();
+
     const [gameState, setGameState] = useState({
         board: INITIAL_BOARD, //2d array of Piece objs
         turn: WHITE,
         selected: -1,//piece to move
         lastMoved: -1,
         isBoardReversed: player === BLACK ? true : false,
-        legalMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
+        pseudoLegalMoveMap: {},//map of nums range (0-63), includes clicked piece and its possible moves
         boards: [Chess.boardToString(INITIAL_BOARD)],//list of board strings i.e. arr[64], uses boardIndex
         boardMoves: [{}],//list of movemaps, uses boardIndex
         boardIndex: 0,//which board in boards[] to view when looking at prev moves
@@ -51,7 +46,7 @@ const Game = () => {
         selected,
         lastMoved,
         isBoardReversed,
-        legalMoveMap,
+        pseudoLegalMoveMap,
         boards,
         boardMoves,
         boardIndex,
@@ -149,7 +144,7 @@ const Game = () => {
                 lastMoved: destination,
                 isBoardReversed: prevGameState.isBoardReversed,
                 turn: nextTurn,
-                legalMoveMap: {},
+                pseudoLegalMoveMap: {},
                 boards: [...prevGameState.boards, Chess.boardToString(nextBoard)],
                 boardMoves: [...prevGameState.boardMoves, nextBoardMoveMap],
                 boardIndex: prevGameState.boards.length,
@@ -182,14 +177,14 @@ const Game = () => {
                 isReversed={isBoardReversed}
                 selected={isAtCurrentBoard ? selected : -1}
                 lastMoveMap={boardMoves[boardIndex]}
-                legalMoveMap={showLegalMoves && isAtCurrentBoard ? legalMoveMap : {}}
+                pseudoLegalMoveMap={showPseudoLegalMoves === 'show-moves' && isAtCurrentBoard ? pseudoLegalMoveMap : {}}
                 warningMap={isAtCurrentBoard ? warningMap : {}}
                 onSelection={(index: number , symbol: string) => {
                     if (index === selected) {return;}
                     let isPlayerWhite = player === WHITE;
                     let isSymbolUpperCase = symbol === symbol.toUpperCase();
                     //if move is in movemap
-                    if (index in legalMoveMap){
+                    if (index in pseudoLegalMoveMap){
                         const [selectedRow, selectedCol] = indexToCoords(selected);
                         const [destinationRow, destinationCol] = indexToCoords(index);
                         if (!Chess.wouldMovePutKingInCheck(board, player, selectedRow, selectedCol, destinationRow, destinationCol)){
@@ -216,7 +211,7 @@ const Game = () => {
                         //generate possible moves for movemap
                         let possibleMoves2d = Chess.generateMoves(board, lastMovedRow, lastMovedCol, indexRow, indexCol);
                         let possibleMoves = possibleMoves2d.map(coords2d => coordsToIndex(coords2d[0], coords2d[1]));
-                        let legalMoveMap = possibleMoves.reduce((map: { [key: string]: number }, move) => {
+                        let pseudoLegalMoveMap = possibleMoves.reduce((map: { [key: string]: number }, move) => {
                             map[move] = move;
                             return map;
                         }, {});
@@ -225,7 +220,7 @@ const Game = () => {
                             return {
                                 ...prevGameState,
                                 selected: index,
-                                legalMoveMap: legalMoveMap
+                                pseudoLegalMoveMap: pseudoLegalMoveMap
                             };
                         });
                     }
