@@ -36,7 +36,7 @@ localhost:8080
 - [Stockfish.js](https://github.com/nmrugg/stockfish.js) to use the aforementioned chess engine in JavaScript
 
 ### Misc Sources:
-- [UCI Protocol](UCI Chess Engine Protocol) is followed when communicating between the game and chess engine
+- [UCI Chess Engine Protocol](https://www.shredderchess.com/download.html) is followed when communicating between the game and chess engine
 ---
 ## Thanks!
 Thank you for checking out this project. I had a lot of fun making this project and hope you try it out!
